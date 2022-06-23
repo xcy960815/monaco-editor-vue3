@@ -1,0 +1,19 @@
+{
+  "name": "monaco-editor-vue3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "register-service-worker": "^1.7.2",
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-pwa": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "typescript": "~4.5.5"
+  }
+}
