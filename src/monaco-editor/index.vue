@@ -12,14 +12,17 @@ import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
 import type { PropType } from "vue"
 import { nextTick, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
+
 const emit = defineEmits(["update:sql"])
+
 const props = defineProps({
   // sql 语句
-  sql: {
+  modelValue: {
     type: String,
-    default: () => ''
+    default: () => '',
   },
 
+  // 触发字符
   triggerCharacters: {
     type: Array as PropType<Array<string>>,
     default: () => [],
@@ -30,6 +33,7 @@ const props = defineProps({
     type: Array as PropType<Array<string>>,
     default: () => [],
   },
+
   // 数据库数据
   databaseOptions: {
     type: Array as PropType<Array<DatabaseOption>>,
@@ -46,75 +50,109 @@ const props = defineProps({
     default: () => [],
   },
 
+  // 编译器的width
   width: {
     type: Number,
     default: () => 0,
   },
 
+  // 编译器的高
   height: {
     type: Number,
-    default: () => 0,
+    default: () => 100,
   },
-})
 
-// 做组件的双向绑定
-watch(() => props.sql, (newSql: string) => {
-  // 解决双向绑定换行 光标跳到第一行第一列的问题 
-  if (!monacoEditor.value?.hasTextFocus()) {
-    toRaw(monacoEditor.value)?.setValue(newSql)
+  // 编译器配置项
+  monacoEditorOption: {
+    type: Object as PropType<monaco.editor.IStandaloneEditorConstructionOptions>,
+    default: {}
   }
 })
+
+
+
 // monacoEditor 挂载的dom节点
 const monacoEditorDom = ref<HTMLDivElement>()
+
 // monacoEditor 实例
 const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor>()
 
 const completionItemProvider = ref<monaco.IDisposable>()
 
+// 编译器的默认配置
+const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOptions = {
+  fontFamily: "MONACO",
+  lineHeight: 30,
+  value: props.modelValue,
+  language: 'sql',
+  theme: 'vs-dark',
+  selectOnLineNumbers: true,
+  contextmenu: false, //关闭右键
+  suggestOnTriggerCharacters: true,
+  fontSize: 14,
+  folding: false, // 是否折叠
+  // 是否启用小地图
+  minimap: {
+    enabled: false
+  }
+}
+
+// 做组件的双向绑定
+watch(() => props.modelValue, (newSql: string) => {
+  // 解决双向绑定换行 光标跳到第一行第一列的问题 
+  if (!monacoEditor.value?.hasTextFocus()) {
+    toRaw(monacoEditor.value)?.setValue(newSql)
+  }
+})
+
+// 监听编译器样式参数的变化 start
+watch(() => props.height, () => {
+  setMonacoEditorStyle()
+})
+watch(() => props.width, () => {
+  setMonacoEditorStyle()
+})
+// 监听编译器样式参数的变化 end
+
+
+
+
+// 设置 编译器宽高
+const setMonacoEditorStyle = () => {
+  // 获取 monacoEditorDom 节点的父节点
+  const parentElementWidth = window.getComputedStyle((monacoEditorDom.value as HTMLDivElement).parentElement!).width
+  const parentElementWidthNumber = Number(parentElementWidth.substring(0, parentElementWidth.length - 2))
+  toRaw(monacoEditor.value)?.layout({ width: props.width ? props.width : parentElementWidthNumber, height: props.height })
+}
+
 // 初始化 editor
 const initEditor = () => {
-  monacoEditorDom.value!.style.height = props.height + 'px'
-  monacoEditorDom.value!.style.width = "100%"
+
   const sqlSnippets = new SqlSnippets(
-    monaco,
     props.customKeywords,
     props.databaseOptions,
     props.onInputField,
     props.onInputTableAlia
   )
 
+
   completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
+    // 提示的触发字符
     triggerCharacters: [' ', '.', ...(props.triggerCharacters)],
     provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
       return sqlSnippets.provideCompletionItems(model, position)
     }
   })
 
-
-  monacoEditor.value = monaco.editor.create(monacoEditorDom.value!, {
-    value: props.sql,
-    language: 'sql',
-    theme: 'vs-dark',
-    selectOnLineNumbers: true,
-    contextmenu: false, //关闭右键
-    suggestOnTriggerCharacters: true,
-    fontSize: 16,
-    folding: false, // 是否折叠
-    minimap: {
-      enabled: false
-    }
-  })
+  // 创建editor实例
+  monacoEditor.value = monaco.editor.create(monacoEditorDom.value!, JSON.stringify(props.monacoEditorOption) === "{}" ? monacoEditorDefaultOption : props.monacoEditorOption)
 
   // 渲染 编译器 宽高
-  // if (props.height)
-  //   monacoEditor.value.layout({ width: props.width ? props.width : 0, height: props.height })
+  if (props.height) setMonacoEditorStyle()
 
-  // 监听值的变化
-  monacoEditor.value.onDidChangeModelContent(
-    (_event: monaco.editor.IModelContentChangedEvent) => {
-      emit("update:sql", toRaw(monacoEditor.value!).getValue())
-    }
-  )
+
+  // 监听编译器里面的值的变化
+  monacoEditor.value.onDidChangeModelContent(() => { emit("update:sql", toRaw(monacoEditor.value!).getValue()) })
 }
 
 onMounted(() => {
@@ -129,48 +167,3 @@ onBeforeUnmount(() => {
 })
 
 </script>
-<style lang="less" scoped>
-:deep(.monaco-editor) {
-  padding: 10px 0;
-}
-
-.editor-area {
-  position: relative;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  overflow: hidden;
-  padding: 5px;
-  padding-left: 0;
-  background-color: #fff;
-  box-sizing: border-box;
-
-  &.full {
-    position: fixed;
-    left: calc(10vw / 2);
-    top: calc(10vh / 2);
-    box-shadow: 0 0 22px 10px rgba(0, 0, 0, 0.3);
-    width: 90vw !important;
-    height: 90vh !important;
-    z-index: 9999;
-  }
-
-  .tools {
-    z-index: 888;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 0 2px;
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-    left: 0;
-    bottom: 0px;
-    top: 0;
-
-    .expand {
-      cursor: pointer;
-      line-height: 0;
-      margin-top: 5px;
-    }
-  }
-}
-</style>

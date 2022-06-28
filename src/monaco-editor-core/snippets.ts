@@ -40,11 +40,12 @@ type SortText = {
 // }
 
 // 建议选项
-type SuggestOption = any //monaco.languages.CompletionItem
+type SuggestOption = any
 
 export default class Snippets {
-    monaco: any
+    monacoEditor: any
 
+    // 自定义关键字
     customKeywords: Array<string>
 
     databaseKeywords: Array<string>
@@ -58,7 +59,6 @@ export default class Snippets {
     onInputTableAila: Function | undefined
 
     constructor(
-        monaco: any,
         customKeywords?: Array<string>,
         databaseOptions?: Array<DatabaseOption>,
         onInputTableColumn?: Function,
@@ -71,7 +71,7 @@ export default class Snippets {
             Keyword: '3',
         }
 
-        // 自定义关键字
+        // 记录自定义关键字
         this.customKeywords = customKeywords ? customKeywords : []
 
         // 数据库关键字
@@ -80,10 +80,11 @@ export default class Snippets {
             ...(customKeywords ? customKeywords : []),
         ]
 
-        // 数据库选项
+        // 记录数据库选项
         this.databaseOptions = databaseOptions ? databaseOptions : []
 
-        this.monaco = monaco
+        // editor 赋值
+        this.monacoEditor = monaco
 
         // 字段联想callback
         this.onInputTableColumn = onInputTableColumn
@@ -92,24 +93,21 @@ export default class Snippets {
         this.onInputTableAila = onInputTableAila
     }
 
-    // /**
-    //  * 动态设置数据库表&&数据库字段
-    //  * @param {*} databaseOptions 数据库schema
-    //  * @example [{ databaseName: '', tableOptions: [{ tableName: '', tableColumnOptions: [] }] }]
-    //  */
-    // setDatabaseSchema(databaseOptions: Array<DatabaseOption>) {
-    //     this.databaseOptions = databaseOptions
-    // }
+    /**
+     * 动态设置数据库表&&数据库字段
+     * @param {*} databaseOptions 数据库数据
+     * @example [{ databaseName: '', tableOptions: [{ tableName: '', tableColumnOptions: [] }] }]
+     */
+    setDatabaseOption(databaseOptions: Array<DatabaseOption>) {
+        this.databaseOptions = databaseOptions
+    }
 
     /**
      * monaco提示方法
      * @param {*} model
      * @param {*} position
      */
-    async provideCompletionItems(
-        model: monaco.editor.ITextModel,
-        position: monaco.Position
-    ) {
+    async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
         // 获取当前列和当前行
         const { lineNumber, column } = position
 
@@ -149,6 +147,7 @@ export default class Snippets {
 
         const tokens = textBeforePointer.trim().split(/\s+/)
 
+        // 最后一个字段
         const lastToken = tokens[tokens.length - 1].toLowerCase()
 
         // 数据库名联想
@@ -270,7 +269,7 @@ export default class Snippets {
     getCustomSuggest(startsWith$: boolean): Array<SuggestOption> {
         return this.customKeywords.map((customKeyword) => ({
             label: customKeyword,
-            kind: this.monaco.languages.CompletionItemKind.Keyword,
+            kind: this.monacoEditor.languages.CompletionItemKind.Keyword,
             detail: '',
             sortText: this.sortText.Keyword,
             // Fix插入两个$符号
@@ -293,7 +292,7 @@ export default class Snippets {
     //                     label: tableColumnOption.columnName
     //                         ? tableColumnOption.columnName
     //                         : '',
-    //                     kind: this.monaco.languages.CompletionItemKind.Module,
+    //                     kind: this.monacoEditor.languages.CompletionItemKind.Module,
     //                     detail: `<字段>`,
     //                     sortText: this.sortText.Column,
     //                     insertText: tableColumnOption.columnName
@@ -315,7 +314,7 @@ export default class Snippets {
                 label: databaseOption.databaseName
                     ? databaseOption.databaseName
                     : '',
-                kind: this.monaco.languages.CompletionItemKind.Class,
+                kind: this.monacoEditor.languages.CompletionItemKind.Class,
                 detail: `<数据库>`,
                 sortText: this.sortText.Database,
                 insertText: databaseOption.databaseName
@@ -332,7 +331,7 @@ export default class Snippets {
     getKeywordSuggest = () => {
         return this.databaseKeywords.map((databaseKeyword) => ({
             label: databaseKeyword,
-            kind: this.monaco.languages.CompletionItemKind.Keyword,
+            kind: this.monacoEditor.languages.CompletionItemKind.Keyword,
             detail: '<关键字>',
             sortText: this.sortText.Keyword,
             // Fix插入两个$符号
@@ -349,10 +348,10 @@ export default class Snippets {
         const suggestOptions: Array<SuggestOption> = []
 
         this.databaseOptions.forEach((databaseOption) => {
-            databaseOption.tableOptions.forEach((tableOption: any) => {
+            databaseOption.tableOptions.forEach((tableOption) => {
                 suggestOptions.push({
                     label: tableOption.tableName ? tableOption.tableName : '',
-                    kind: this.monaco.languages.CompletionItemKind.Struct,
+                    kind: this.monacoEditor.languages.CompletionItemKind.Struct,
                     detail: `<表> ${databaseOption.databaseName} ${tableOption.tableComment ? tableOption.tableComment : ''
                         }`,
                     sortText: this.sortText.Table,
@@ -380,7 +379,7 @@ export default class Snippets {
             currentDatabase.tableOptions.forEach((tableOption) => {
                 suggestOptions.push({
                     label: tableOption.tableName ? tableOption.tableName : '',
-                    kind: this.monaco.languages.CompletionItemKind.Struct,
+                    kind: this.monacoEditor.languages.CompletionItemKind.Struct,
                     detail: `<表> ${currentDatabase.databaseName} ${tableOption.tableComment ? tableOption.tableComment : ''
                         }`,
                     sortText: this.sortText.Table,
@@ -412,7 +411,7 @@ export default class Snippets {
                                 label: tableColumnOption.columnName
                                     ? tableColumnOption.columnName
                                     : '',
-                                kind: this.monaco.languages.CompletionItemKind
+                                kind: this.monacoEditor.languages.CompletionItemKind
                                     .Field,
                                 detail: `<字段> ${tableColumnOption.commentName
                                     ? tableColumnOption.commentName
@@ -443,7 +442,7 @@ export default class Snippets {
             fileds.forEach((field: any) => {
                 asyncFields.push({
                     label: field.columnName ? field.columnName : '',
-                    kind: this.monaco.languages.CompletionItemKind.Field,
+                    kind: this.monacoEditor.languages.CompletionItemKind.Field,
                     detail: `<字段> ${field.commentName ? field.commentName : ''
                         } <${field.columnType}>`,
                     sortText: this.sortText.Column,
@@ -479,7 +478,7 @@ export default class Snippets {
                                 label: tableColumnOption.columnName
                                     ? tableColumnOption.columnName
                                     : '',
-                                kind: this.monaco.languages.CompletionItemKind
+                                kind: this.monacoEditor.languages.CompletionItemKind
                                     .Field,
                                 detail: `<字段> ${tableColumnOption.commentName
                                     ? tableColumnOption.commentName
@@ -510,7 +509,7 @@ export default class Snippets {
             fileds.forEach((field: any) => {
                 asyncFields.push({
                     label: field.columnName ? field.columnName : '',
-                    kind: this.monaco.languages.CompletionItemKind.Field,
+                    kind: this.monacoEditor.languages.CompletionItemKind.Field,
                     detail: `<字段> ${field.commentName ? field.commentName : ''
                         } <${field.columnType}>`,
                     sortText: this.sortText.Column,
