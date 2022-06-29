@@ -177,7 +177,7 @@ export default class Snippets {
                 if (currentTable && currentTable.tableName) {
                     return {
                         suggestions:
-                            this.getFieldOptionsSuggestByTableAlia(),
+                            this.getTableColumnSuggestByTableAlia(),
                     }
                 } else {
                     return {
@@ -290,33 +290,36 @@ export default class Snippets {
     /**
      * 获取数据库库名联想建议
      */
-    getDataBaseSuggest = (): Array<SuggestOption> => {
-        return this.databaseOptions.map((databaseOption) => ({
-            label: databaseOption.databaseName
-                ? databaseOption.databaseName
-                : '',
-            kind: this.monacoEditor.languages.CompletionItemKind.Class,
-            detail: `<数据库>`,
-            sortText: this.sortText.Database,
-            insertText: databaseOption.databaseName
-                ? databaseOption.databaseName
-                : '',
-        }))
+    getDataBaseSuggest() {
+        return this.databaseOptions.map((databaseOption) => {
+            return {
+                label: databaseOption.databaseName
+                    ? databaseOption.databaseName
+                    : '',
+                kind: this.monacoEditor.languages.CompletionItemKind.Class,
+                detail: `<数据库>`,
+                sortText: this.sortText.Database,
+                insertText: databaseOption.databaseName
+                    ? databaseOption.databaseName
+                    : '',
+            }
+        })
     }
 
     /**
-     * 获取关键字联想
+     * 获取关键字联想建议
+     * @param {*} keyword
      */
-    getKeywordSuggest = (): Array<SuggestOption> => {
-        return this.databaseKeywords.map((databaseKeyword: string) => ({
-            label: databaseKeyword.toLocaleLowerCase(),
+    getKeywordSuggest = () => {
+        return this.databaseKeywords.map((databaseKeyword) => ({
+            label: databaseKeyword,
             kind: this.monacoEditor.languages.CompletionItemKind.Keyword,
             detail: '<关键字>',
             sortText: this.sortText.Keyword,
             // Fix插入两个$符号
             insertText: databaseKeyword.startsWith('$')
-                ? databaseKeyword.slice(1).toLocaleLowerCase()
-                : databaseKeyword.toLocaleLowerCase(),
+                ? databaseKeyword.slice(1)
+                : databaseKeyword,
         }))
     }
 
@@ -354,14 +357,18 @@ export default class Snippets {
         // 从当前输入的数据库当中获取 所有的数据
         const currentDatabase = this.databaseOptions.find((databaseOption) => databaseOption.databaseName === databaseName)
 
-        return currentDatabase ? currentDatabase.tableOptions.map((tableOption: TableOption) => ({
-            label: tableOption.tableName || '',
+        return currentDatabase ? currentDatabase.tableOptions.map((tableOption) => ({
+            label: tableOption.tableName ? tableOption.tableName : '',
             kind: this.monacoEditor.languages.CompletionItemKind.Struct,
             detail: `<表> ${currentDatabase.databaseName} ${tableOption.tableComment ? tableOption.tableComment : ''
                 }`,
             sortText: this.sortText.Table,
-            insertText: tableOption.tableName || '',
-            documentation: tableOption.tableComment || '',
+            insertText: tableOption.tableName
+                ? tableOption.tableName
+                : '',
+            documentation: tableOption.tableComment
+                ? tableOption.tableComment
+                : '',
         })) : []
     }
     /**
@@ -398,11 +405,13 @@ export default class Snippets {
     }
 
     /**
-     * 根据表别名获取所有的字段
-     * @returns {Array<SuggestOption>}[]
+     * 根据别名获取所有表字段
+     * @param {*} table
+     * @param {*} column
      */
-    getFieldOptionsSuggestByTableAlia = (): Array<SuggestOption> => {
+    getTableColumnSuggestByTableAlia() {
         const defaultFields: Array<SuggestOption> = []
+
         this.databaseOptions.forEach((databaseOption) => {
             databaseOption.tableOptions.forEach((tableOption) => {
                 tableOption.fieldOptions &&
@@ -418,7 +427,9 @@ export default class Snippets {
                                     value: `
   ### 数据库: ${fieldOption.databaseName}
   ### 表: ${fieldOption.tableName}
-  ### 注释: ${fieldOption.fieldComment || ''}`,
+  ### 注释: ${fieldOption.fieldComment || ''
+                                        }
+              `,
                                 },
                             })
                         }
@@ -435,13 +446,17 @@ export default class Snippets {
      * @param {*} sqlText SQL字符串
      */
     getTableNameAndTableAlia(sqlText: string) {
-        const regTableAliaFrom = /(^|(\s+))from\s+([^\s]+(\s+|(\s+as\s+))[^\s]+(\s+|,)\s*)+(\s+(where|left|right|full|join|inner|union))?/gi
+        const regTableAliaFrom =
+            /(^|(\s+))from\s+([^\s]+(\s+|(\s+as\s+))[^\s]+(\s+|,)\s*)+(\s+(where|left|right|full|join|inner|union))?/gi
 
-        const regTableAliaJoin = /(^|(\s+))join\s+([^\s]+)\s+(as\s+)?([^\s]+)\s+on/gi
+        const regTableAliaJoin =
+            /(^|(\s+))join\s+([^\s]+)\s+(as\s+)?([^\s]+)\s+on/gi
 
-        const regTableAliaFromList = sqlText.match(regTableAliaFrom) || []
+        const regTableAliaFromList = sqlText.match(regTableAliaFrom)
+            || []
 
-        const regTableAliaJoinList = sqlText.match(regTableAliaJoin) || []
+        const regTableAliaJoinList = sqlText.match(regTableAliaJoin)
+            || []
 
         const strList = [
 
