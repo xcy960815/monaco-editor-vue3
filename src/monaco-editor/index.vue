@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatabaseOption } from "@/monaco-editor-core/snippets"
+import type { DatabaseOption } from "@/monaco-editor-core/type"
 import SqlSnippets from '@/monaco-editor-core/snippets'
 import * as monaco from 'monaco-editor'
 // 拦截 command + f 快捷键
@@ -11,7 +11,7 @@ import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
 // sql 语法高亮
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
 import type { PropType } from "vue"
-import { nextTick, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
 
 const emit = defineEmits(["update:sql"])
 
@@ -40,15 +40,6 @@ const props = defineProps({
     default: () => [],
   },
 
-  onInputField: {
-    type: Function,
-    default: () => [],
-  },
-
-  onInputTableAlia: {
-    type: Function,
-    default: () => [],
-  },
 
   // 编译器的width
   width: {
@@ -127,21 +118,17 @@ const setMonacoEditorStyle = () => {
 
 // 初始化 editor
 const initEditor = () => {
-
   const sqlSnippets = new SqlSnippets(
     props.customKeywords,
     props.databaseOptions,
-    props.onInputField,
-    props.onInputTableAlia
   )
 
 
   completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
     // 提示的触发字符
     triggerCharacters: [' ', '.', ...(props.triggerCharacters)],
-    provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
-      return sqlSnippets.provideCompletionItems(model, position)
-    }
+    // 因为在js代码中 range 属性不配置也可以正常显示  所以 在这里避免代码抛错  使用了一个 别名 
+    provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => sqlSnippets.provideCompletionItems(model, position) as monaco.languages.ProviderResult<monaco.languages.CompletionList>
   })
 
   // 创建editor实例
@@ -156,9 +143,7 @@ const initEditor = () => {
 }
 
 onMounted(() => {
-  nextTick(() => {
-    initEditor()
-  })
+  initEditor()
 })
 
 // 离开时销毁
