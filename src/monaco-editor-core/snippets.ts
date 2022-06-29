@@ -1,46 +1,8 @@
 import * as monaco from 'monaco-editor'
 import { keywords } from './keywords'
+import type { SortText, DatabaseOption, SuggestOption, TableOption } from "./type"
 
-// 列选项
-type TableColumnOption = {
-    columnName: string
-    columnType: string
-    databaseName: string
-    tableName: string
-    commentName: string
-}
 
-// 表选项
-type TableOption = {
-    tableName: string
-    tableComment: string
-    tableColumnOptions: Array<TableColumnOption>
-}
-
-// 数据库选项
-export type DatabaseOption = {
-    databaseName: string
-    tableOptions: Array<TableOption>
-}
-
-type SortText = {
-    Database: string
-    Table: string
-    Column: string
-    Keyword: string
-}
-
-// type Option = {
-//     label: string
-//     kind: number
-//     detail: string
-//     sortText: string
-//     insertText: string
-//     documentation: string | { value: string }
-// }
-
-// 建议选项
-type SuggestOption = any
 
 export default class Snippets {
     monacoEditor: any
@@ -58,12 +20,8 @@ export default class Snippets {
 
     onInputTableAila: Function | undefined
 
-    constructor(
-        customKeywords?: Array<string>,
-        databaseOptions?: Array<DatabaseOption>,
-        onInputTableColumn?: Function,
-        onInputTableAila?: Function
-    ) {
+    constructor(customKeywords?: Array<string>, databaseOptions?: Array<DatabaseOption>, onInputTableColumn?: Function, onInputTableAila?: Function) {
+
         this.sortText = {
             Database: '0',
             Table: '1',
@@ -96,7 +54,21 @@ export default class Snippets {
     /**
      * 动态设置数据库表&&数据库字段
      * @param {*} databaseOptions 数据库数据
-     * @example [{ databaseName: '', tableOptions: [{ tableName: '', tableColumnOptions: [] }] }]
+     * @example [
+     *            { 
+     *                  databaseName: '', 
+     *                  tableOptions: [
+     *                      {   
+     *                          tableName: '',
+     *                          fieldOptions: [
+     *                               {
+     *                                   fieldName: ''
+     *                               }
+     *                           ] 
+     *                       }
+     *                  ] 
+     *              }
+     *          ]
      */
     setDatabaseOption(databaseOptions: Array<DatabaseOption>) {
         this.databaseOptions = databaseOptions
@@ -104,10 +76,13 @@ export default class Snippets {
 
     /**
      * monaco提示方法
-     * @param {*} model
-     * @param {*} position
+     * @param {monaco.editor.ITextModel} monaco
+     * @param {position: monaco.Position} position
+     * @return {monaco.languages.CompletionList} []
      */
-    async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
+    provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position): monaco.languages.CompletionList {
+
+
         // 获取当前列和当前行
         const { lineNumber, column } = position
 
@@ -119,12 +94,15 @@ export default class Snippets {
             endColumn: column,
         })
 
+        // 光标 前面所有的脚本
         const textBeforePointerMulti = model.getValueInRange({
             startLineNumber: 1,
             startColumn: 0,
             endLineNumber: lineNumber,
             endColumn: column,
         })
+
+        const textBeforePointerMultiSplited = textBeforePointerMulti.split(';')
 
         // 光标后文本
         // const textAfterPointer = model.getValueInRange({
@@ -141,6 +119,8 @@ export default class Snippets {
             endColumn: model.getLineMaxColumn(model.getLineCount()),
         })
 
+
+
         // const nextTokens = textAfterPointer.trim().split(/\s+/)
 
         // const nextToken = nextTokens[0].toLowerCase()
@@ -150,51 +130,52 @@ export default class Snippets {
         // 最后一个字段
         const lastToken = tokens[tokens.length - 1].toLowerCase()
 
+
         // 数据库名联想
         if (lastToken === 'database') {
             return {
-                suggestions: this.getDataBaseSuggest(),
+                suggestions: this.getDataBaseSuggest(position),
             }
             // <库名>.<表名> || <别名>.<字段>
         } else if (lastToken.endsWith('.')) {
             // 去掉点后的字符串
             const tokenNoDot = lastToken.slice(0, lastToken.length - 1)
-            if (
-                this.databaseOptions.find(
-                    (dboption) =>
-                        dboption.databaseName ===
-                        tokenNoDot.replace(/^.*,/g, '')
-                )
-            ) {
+
+            // 获取当前数据库
+            const databaseOption = this.databaseOptions.find((dboption) => dboption.databaseName === tokenNoDot.replace(/^.*,/g, ''))
+
+            if (databaseOption) {
                 // <库名>.<表名>联想
                 return {
                     suggestions: [
-                        ...this.getTableSuggestByDbName(
-                            tokenNoDot.replace(/^.*,/g, '')
+                        ...this.getTableOptionsSuggestByDatabaseName(
+                            tokenNoDot.replace(/^.*,/g, ''),
+                            position
                         ),
                     ],
                 }
             } else if (
                 this.getTableNameAndTableAlia(
-                    textBeforePointerMulti.split(';')[
-                    textBeforePointerMulti.split(';').length - 1
-                    ] + textAfterPointerMulti.split(';')[0]
+                    textBeforePointerMultiSplited[
+                    textBeforePointerMultiSplited.length - 1
+                    ] + textBeforePointerMultiSplited[0]
                 )
             ) {
                 const tableInfoList = this.getTableNameAndTableAlia(
-                    textBeforePointerMulti.split(';')[
-                    textBeforePointerMulti.split(';').length - 1
-                    ] + textAfterPointerMulti.split(';')[0]
+                    textBeforePointerMultiSplited[
+                    textBeforePointerMultiSplited.length - 1
+                    ] + textBeforePointerMultiSplited[0]
                 )
-                const currentTable = tableInfoList.find(
-                    (item) => item.tableAlia === tokenNoDot.replace(/^.*,/g, '')
-                )
+
+                const currentTable = tableInfoList.find((item) => item.tableAlia === tokenNoDot.replace(/^.*,/g, ''))
+
                 // <别名>.<字段>联想
                 if (currentTable && currentTable.tableName) {
                     return {
                         suggestions:
-                            await this.getTableColumnSuggestByTableAlia(
-                                currentTable.tableName
+                            this.getFieldOptionsSuggestByTableAlia(
+                                currentTable.tableName,
+                                position
                             ),
                     }
                 } else {
@@ -215,8 +196,8 @@ export default class Snippets {
                 textBeforePointer.replace(/.*?\(/gm, '').toLowerCase()
             )
         ) {
-            // const tableOptions = this.getTableSuggest()
-            const databases = this.getDataBaseSuggest()
+            // const tableOptions = this.getTableOptionsSuggest()
+            const databases = this.getDataBaseSuggest(position)
             return {
                 suggestions: databases,
             }
@@ -243,21 +224,26 @@ export default class Snippets {
                 textBeforePointer.toLowerCase()
             )
         ) {
+
             return {
-                suggestions: await this.getTableColumnSuggest(),
+                suggestions: this.getFieldOptionsSuggest(position),
             }
-            // 自定义字段联想
+
         } else if (this.customKeywords.toString().includes(lastToken)) {
+            // 自定义字段联想
+            console.log("进入到自定义字段联想");
             return {
-                suggestions: this.getCustomSuggest(lastToken.startsWith('$')),
+                suggestions: this.getCustomSuggest(lastToken.startsWith('$'), position),
             }
-            // 默认联想
         } else {
+            // 默认联想
+            console.log("默认联想");
+
             return {
                 suggestions: [
-                    ...this.getDataBaseSuggest(),
-                    ...this.getTableSuggest(),
-                    ...this.getKeywordSuggest(),
+                    ...this.getDataBaseSuggest(position),
+                    ...this.getTableOptionsSuggest(position),
+                    ...this.getKeywordSuggest(position),
                 ],
             }
         }
@@ -266,17 +252,21 @@ export default class Snippets {
     /**
      * 获取自定义联想建议
      */
-    getCustomSuggest(startsWith$: boolean): Array<SuggestOption> {
-        return this.customKeywords.map((customKeyword) => ({
+    getCustomSuggest(startsWith$: boolean, position: monaco.Position): Array<SuggestOption> {
+        const { column, lineNumber } = position
+        return this.customKeywords.map((customKeyword: string) => ({
             label: customKeyword,
             kind: this.monacoEditor.languages.CompletionItemKind.Keyword,
-            detail: '',
+            detail: '自定义联想建议',
             sortText: this.sortText.Keyword,
             // Fix插入两个$符号
             insertText: startsWith$ ? customKeyword.slice(1) : customKeyword,
-            // range: {
-            //     startColumn: 0,
-            // }
+            range: {
+                startColumn: column,
+                endColumn: column,
+                startLineNumber: lineNumber,
+                endLineNumber: lineNumber
+            }
         }))
     }
 
@@ -284,151 +274,156 @@ export default class Snippets {
      * 获取所有字段
      */
     // getAllTableColumn() {
-    //     const tableColumnOptions: Array<SuggestOption> = []
+    //     const tableOptions: Array<SuggestOption> = []
     //     this.databaseOptions.forEach((databaseOption) => {
     //         databaseOption.tableOptions.forEach((tableOption) => {
-    //             tableOption.tableColumnOptions.forEach((tableColumnOption) => {
-    //                 tableColumnOptions.push({
-    //                     label: tableColumnOption.columnName
-    //                         ? tableColumnOption.columnName
+    //             tableOption.tableOptions.forEach((tableColumnOption) => {
+    //                 tableOptions.push({
+    //                     label: tableColumnOption.fieldName
+    //                         ? tableColumnOption.fieldName
     //                         : '',
     //                     kind: this.monacoEditor.languages.CompletionItemKind.Module,
     //                     detail: `<字段>`,
     //                     sortText: this.sortText.Column,
-    //                     insertText: tableColumnOption.columnName
-    //                         ? tableColumnOption.columnName
+    //                     insertText: tableColumnOption.fieldName
+    //                         ? tableColumnOption.fieldName
     //                         : '',
     //                 })
     //             })
     //         })
     //     })
-    //     return tableColumnOptions
+    //     return tableOptions
     // }
 
     /**
      * 获取数据库库名联想建议
      */
-    getDataBaseSuggest() {
+    getDataBaseSuggest = (position: monaco.Position): Array<SuggestOption> => {
+        const { column, lineNumber } = position
         return this.databaseOptions.map((databaseOption) => {
             return {
-                label: databaseOption.databaseName
-                    ? databaseOption.databaseName
-                    : '',
+                label: databaseOption.databaseName || '',
                 kind: this.monacoEditor.languages.CompletionItemKind.Class,
                 detail: `<数据库>`,
                 sortText: this.sortText.Database,
-                insertText: databaseOption.databaseName
-                    ? databaseOption.databaseName
-                    : '',
+                insertText: databaseOption.databaseName || '',
+                range: {
+                    startColumn: column,
+                    endColumn: column,
+                    startLineNumber: lineNumber,
+                    endLineNumber: lineNumber
+                }
             }
         })
     }
 
     /**
      * 获取关键字联想建议
-     * @param {*} keyword
+     * @param {monaco.Position} position
+     * @return {Array<SuggestOption>} []
      */
-    getKeywordSuggest = () => {
-        return this.databaseKeywords.map((databaseKeyword) => ({
-            label: databaseKeyword,
+    getKeywordSuggest = (position: monaco.Position): Array<SuggestOption> => {
+        const { column, lineNumber } = position
+        return this.databaseKeywords.map((databaseKeyword: string) => ({
+            // 变成小写
+            label: databaseKeyword.toLocaleLowerCase(),
             kind: this.monacoEditor.languages.CompletionItemKind.Keyword,
             detail: '<关键字>',
             sortText: this.sortText.Keyword,
             // Fix插入两个$符号
             insertText: databaseKeyword.startsWith('$')
-                ? databaseKeyword.slice(1)
-                : databaseKeyword,
+                ? databaseKeyword.slice(1).toLocaleLowerCase()
+                : databaseKeyword.toLocaleLowerCase(),
+            range: {
+                startColumn: column,
+                endColumn: column,
+                startLineNumber: lineNumber,
+                endLineNumber: lineNumber
+            }
         }))
     }
 
     /**
      * 获取数据库表名建议
      */
-    getTableSuggest = (): Array<SuggestOption> => {
+    getTableOptionsSuggest = (position: monaco.Position): Array<SuggestOption> => {
         const suggestOptions: Array<SuggestOption> = []
-
-        this.databaseOptions.forEach((databaseOption) => {
-            databaseOption.tableOptions.forEach((tableOption) => {
+        const { lineNumber, column } = position
+        this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
+            databaseOption.tableOptions.forEach((tableOption: TableOption) => {
                 suggestOptions.push({
                     label: tableOption.tableName ? tableOption.tableName : '',
                     kind: this.monacoEditor.languages.CompletionItemKind.Struct,
-                    detail: `<表> ${databaseOption.databaseName} ${tableOption.tableComment ? tableOption.tableComment : ''
-                        }`,
+                    detail: `<表> ${databaseOption.databaseName} ${tableOption.tableComment || ''}`,
                     sortText: this.sortText.Table,
-                    insertText: tableOption.tableName
-                        ? tableOption.tableName
-                        : '',
-                    documentation: tableOption.tableComment
-                        ? tableOption.tableComment
-                        : '',
+                    insertText: tableOption.tableName || '',
+                    documentation: tableOption.tableComment || '',
+                    range: {
+                        startLineNumber: lineNumber,
+                        startColumn: column,
+                        endLineNumber: lineNumber,
+                        endColumn: column,
+                    }
                 })
             })
         })
         return suggestOptions
     }
 
-    getTableSuggestByDbName(databaseName: string): Array<SuggestOption> {
+    // 通过当前数据库 查找表选项
+    getTableOptionsSuggestByDatabaseName(databaseName: string, position: monaco.Position): Array<SuggestOption> {
+        const { lineNumber, column } = position
         // 从当前输入的数据库当中获取 所有的数据
-        const currentDatabase = this.databaseOptions.find(
-            (databaseOption) => databaseOption.databaseName === databaseName
-        )
+        const currentDatabase = this.databaseOptions.find((databaseOption) => databaseOption.databaseName === databaseName)
+        return currentDatabase ? currentDatabase.tableOptions.map((tableOption) => ({
+            label: tableOption.tableName ? tableOption.tableName : '',
+            kind: this.monacoEditor.languages.CompletionItemKind.Struct,
+            detail: `<表> ${currentDatabase.databaseName} ${tableOption.tableComment || ''}`,
+            sortText: this.sortText.Table,
+            insertText: tableOption.tableName || '',
+            documentation: tableOption.tableComment || '',
+            range: {
+                startColumn: column,
+                endColumn: column,
+                startLineNumber: lineNumber,
+                endLineNumber: lineNumber
+            }
+        })) : []
 
-        const suggestOptions: Array<SuggestOption> = []
 
-        if (currentDatabase) {
-            currentDatabase.tableOptions.forEach((tableOption) => {
-                suggestOptions.push({
-                    label: tableOption.tableName ? tableOption.tableName : '',
-                    kind: this.monacoEditor.languages.CompletionItemKind.Struct,
-                    detail: `<表> ${currentDatabase.databaseName} ${tableOption.tableComment ? tableOption.tableComment : ''
-                        }`,
-                    sortText: this.sortText.Table,
-                    insertText: tableOption.tableName
-                        ? tableOption.tableName
-                        : '',
-                    documentation: tableOption.tableComment
-                        ? tableOption.tableComment
-                        : '',
-                })
-            })
-        }
-        return suggestOptions
     }
-    /**
-     * 获取所有表字段
-     * @param {*} table
-     * @param {*} column
-     */
-    getTableColumnSuggest = async () => {
-        const defaultFields: Array<SuggestOption> = []
 
+    /**
+     * 获取表字段联想
+     * @param {position} monaco.Position
+     * @return Array<SuggestOption>
+     */
+    getFieldOptionsSuggest = (position: monaco.Position): Array<SuggestOption> => {
+        const defaultFields: Array<SuggestOption> = []
+        const { column, lineNumber } = position
         this.databaseOptions.forEach((databaseOption) => {
             databaseOption.tableOptions.forEach((tableOption) => {
-                tableOption.tableColumnOptions &&
-                    tableOption.tableColumnOptions.forEach(
-                        (tableColumnOption) => {
+                tableOption.fieldOptions &&
+                    tableOption.fieldOptions.forEach(
+                        (fieldOption) => {
                             defaultFields.push({
-                                label: tableColumnOption.columnName
-                                    ? tableColumnOption.columnName
-                                    : '',
-                                kind: this.monacoEditor.languages.CompletionItemKind
-                                    .Field,
-                                detail: `<字段> ${tableColumnOption.commentName
-                                    ? tableColumnOption.commentName
-                                    : ''
-                                    } <${tableColumnOption.columnType}>`,
+                                label: fieldOption.fieldName || '',
+                                kind: this.monacoEditor.languages.CompletionItemKind.Field,
+                                detail: `<字段> ${fieldOption.commentName || ''} <${fieldOption.fieldType}>`,
                                 sortText: this.sortText.Column,
-                                insertText: tableColumnOption.columnName
-                                    ? tableColumnOption.columnName
-                                    : '',
+                                insertText: fieldOption.fieldName || '',
                                 documentation: {
                                     value: `
-  ### 数据库: ${tableColumnOption.databaseName}
-  ### 表: ${tableColumnOption.tableName}
-  ### 注释: ${tableColumnOption.commentName ? tableColumnOption.commentName : ''
-                                        }
-              `,
+  ### 数据库: ${fieldOption.databaseName}
+  ### 表: ${fieldOption.tableName}
+  ### 注释: ${fieldOption.commentName ? fieldOption.commentName : ''}`,
                                 },
+                                range: {
+                                    startColumn: column,
+                                    endColumn: column,
+                                    startLineNumber: lineNumber,
+                                    endLineNumber: lineNumber
+                                }
                             })
                         }
                     )
@@ -437,65 +432,61 @@ export default class Snippets {
 
         const asyncFields: Array<SuggestOption> = []
 
-        if (typeof this.onInputTableColumn === 'function') {
-            const fileds = await this.onInputTableColumn()
-            fileds.forEach((field: any) => {
-                asyncFields.push({
-                    label: field.columnName ? field.columnName : '',
-                    kind: this.monacoEditor.languages.CompletionItemKind.Field,
-                    detail: `<字段> ${field.commentName ? field.commentName : ''
-                        } <${field.columnType}>`,
-                    sortText: this.sortText.Column,
-                    insertText: field.columnName ? field.columnName : '',
-                    documentation: {
-                        value: `
-### 数据库: ${field.databaseName}
-### 表: ${field.tableName}
-### 注释: ${field.commentName ? field.commentName : ''}
-            `,
-                    },
-                })
-            })
-        }
+        //         if (typeof this.onInputTableColumn === 'function') {
+        //             const fileds = await this.onInputTableColumn()
+        //             fileds.forEach((field: any) => {
+        //                 asyncFields.push({
+        //                     label: field.fieldName ? field.fieldName : '',
+        //                     kind: this.monacoEditor.languages.CompletionItemKind.Field,
+        //                     detail: `<字段> ${field.commentName ? field.commentName : ''
+        //                         } <${field.fieldType}>`,
+        //                     sortText: this.sortText.Column,
+        //                     insertText: field.fieldName ? field.fieldName : '',
+        //                     documentation: {
+        //                         value: `
+        // ### 数据库: ${field.databaseName}
+        // ### 表: ${field.tableName}
+        // ### 注释: ${field.commentName ? field.commentName : ''}
+        //             `,
+        //                     },
+        //                 })
+        //             })
+        //         }
 
         return [...defaultFields, ...asyncFields]
     }
 
     /**
      * 根据别名获取所有表字段
-     * @param {*} table
-     * @param {*} column
+     * @param {tableName} 表名
+     * @param {position} monaco.Position
      */
-    async getTableColumnSuggestByTableAlia(tableName: string) {
+    getFieldOptionsSuggestByTableAlia = (tableName: string, position: monaco.Position): Array<SuggestOption> => {
         const defaultFields: Array<SuggestOption> = []
-
+        const { column, lineNumber } = position
         this.databaseOptions.forEach((databaseOption) => {
             databaseOption.tableOptions.forEach((tableOption) => {
-                tableOption.tableColumnOptions &&
-                    tableOption.tableColumnOptions.forEach(
-                        (tableColumnOption) => {
+                tableOption.fieldOptions &&
+                    tableOption.fieldOptions.forEach(
+                        (fieldOption) => {
                             defaultFields.push({
-                                label: tableColumnOption.columnName
-                                    ? tableColumnOption.columnName
-                                    : '',
-                                kind: this.monacoEditor.languages.CompletionItemKind
-                                    .Field,
-                                detail: `<字段> ${tableColumnOption.commentName
-                                    ? tableColumnOption.commentName
-                                    : ''
-                                    } <${tableColumnOption.columnType}>`,
+                                label: fieldOption.fieldName || '',
+                                kind: this.monacoEditor.languages.CompletionItemKind.Field,
+                                detail: `<字段> ${fieldOption.commentName || ''} <${fieldOption.fieldType}>`,
                                 sortText: this.sortText.Column,
-                                insertText: tableColumnOption.columnName
-                                    ? tableColumnOption.columnName
-                                    : '',
+                                insertText: fieldOption.fieldName || '',
                                 documentation: {
                                     value: `
-  ### 数据库: ${tableColumnOption.databaseName}
-  ### 表: ${tableColumnOption.tableName}
-  ### 注释: ${tableColumnOption.commentName ? tableColumnOption.commentName : ''
-                                        }
-              `,
+  ### 数据库: ${fieldOption.databaseName}
+  ### 表: ${fieldOption.tableName}
+  ### 注释: ${fieldOption.commentName || ''}`,
                                 },
+                                range: {
+                                    startLineNumber: lineNumber,
+                                    endLineNumber: lineNumber,
+                                    startColumn: column,
+                                    endColumn: column
+                                }
                             })
                         }
                     )
@@ -504,26 +495,32 @@ export default class Snippets {
 
         const asyncFields: Array<SuggestOption> = []
 
-        if (typeof this.onInputTableAila === 'function') {
-            const fileds = await this.onInputTableAila(tableName)
-            fileds.forEach((field: any) => {
-                asyncFields.push({
-                    label: field.columnName ? field.columnName : '',
-                    kind: this.monacoEditor.languages.CompletionItemKind.Field,
-                    detail: `<字段> ${field.commentName ? field.commentName : ''
-                        } <${field.columnType}>`,
-                    sortText: this.sortText.Column,
-                    insertText: field.columnName ? field.columnName : '',
-                    documentation: {
-                        value: `
-### 数据库: ${field.databaseName}
-### 表: ${field.tableName}
-### 注释: ${field.commentName ? field.commentName : ''}
-            `,
-                    },
-                })
-            })
-        }
+        //         if (typeof this.onInputTableAila === 'function') {
+        //             const fileds = await this.onInputTableAila(tableName)
+        //             fileds.forEach((field: any) => {
+        //                 asyncFields.push({
+        //                     label: field.fieldName ? field.fieldName : '',
+        //                     kind: this.monacoEditor.languages.CompletionItemKind.Field,
+        //                     detail: `<字段> ${field.commentName ? field.commentName : ''
+        //                         } <${field.fieldType}>`,
+        //                     sortText: this.sortText.Column,
+        //                     insertText: field.fieldName ? field.fieldName : '',
+        //                     documentation: {
+        //                         value: `
+        // ### 数据库: ${field.databaseName}
+        // ### 表: ${field.tableName}
+        // ### 注释: ${field.commentName ? field.commentName : ''}
+        //             `,
+        //                     },
+        //                         range: {
+        //                             startLineNumber: lineNumber,
+        //                             endLineNumber: lineNumber,
+        //                             startColumn: column,
+        //                             endColumn: column
+        //                         }
+        //                 })
+        //             })
+        //         }
         return [...defaultFields, ...asyncFields]
     }
 
@@ -532,43 +529,32 @@ export default class Snippets {
      * @param {*} sqlText SQL字符串
      */
     getTableNameAndTableAlia(sqlText: string) {
-        const regTableAliaFrom =
-            /(^|(\s+))from\s+([^\s]+(\s+|(\s+as\s+))[^\s]+(\s+|,)\s*)+(\s+(where|left|right|full|join|inner|union))?/gi
+        const regTableAliaFrom = /(^|(\s+))from\s+([^\s]+(\s+|(\s+as\s+))[^\s]+(\s+|,)\s*)+(\s+(where|left|right|full|join|inner|union))?/gi
 
-        const regTableAliaJoin =
-            /(^|(\s+))join\s+([^\s]+)\s+(as\s+)?([^\s]+)\s+on/gi
+        const regTableAliaJoin = /(^|(\s+))join\s+([^\s]+)\s+(as\s+)?([^\s]+)\s+on/gi
 
-        const regTableAliaFromList = sqlText.match(regTableAliaFrom)
-            ? sqlText.match(regTableAliaFrom)
-            : []
+        const regTableAliaFromList = sqlText.match(regTableAliaFrom) || []
 
-        const regTableAliaJoinList = sqlText.match(regTableAliaJoin)
-            ? sqlText.match(regTableAliaJoin)
-            : []
+        const regTableAliaJoinList = sqlText.match(regTableAliaJoin) || []
 
         const strList = [
-            // @ts-ignore
             ...regTableAliaFromList.map((item) =>
-                item
-                    .replace(/(^|(\s+))from\s+/gi, '')
-                    .replace(
-                        /\s+(where|left|right|full|join|inner|union)((\s+.*?$)|$)/gi,
-                        ''
-                    )
+                item.replace(/(^|(\s+))from\s+/gi, '')
+                    .replace(/\s+(where|left|right|full|join|inner|union)((\s+.*?$)|$)/gi, '')
                     .replace(/\s+as\s+/gi, ' ')
                     .trim()
             ),
-            // @ts-ignore
             ...regTableAliaJoinList.map((item) =>
-                item
-                    .replace(/(^|(\s+))join\s+/gi, '')
+                item.replace(/(^|(\s+))join\s+/gi, '')
                     .replace(/\s+on((\s+.*?$)|$)/, '')
                     .replace(/\s+as\s+/gi, ' ')
                     .trim()
-            ),
+            )
         ]
-        const tableList: Array<any> = []
-        strList.map((tableAndAlia) => {
+
+        const tableList: Array<{ tableName: string, tableAlia: string }> = []
+
+        strList.forEach((tableAndAlia) => {
             tableAndAlia.split(',').forEach((item) => {
                 const tableName = item.trim().split(/\s+/)[0]
                 const tableAlia = item.trim().split(/\s+/)[1]
@@ -578,6 +564,7 @@ export default class Snippets {
                 })
             })
         })
+
         return tableList
     }
 }

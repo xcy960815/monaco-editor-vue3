@@ -1,3 +1,4 @@
+// 数据库关键字
 const keyword = [
     'ACCESSIBLE',
     'ACCOUNT',
@@ -622,6 +623,8 @@ const keyword = [
     'GROUP BY',
     'ORDER BY',
 ]
+
+// 计算关键字
 const operators = [
     'AND',
     'BETWEEN',
@@ -1069,6 +1072,7 @@ const builtinFunctions = [
     'YEAR',
     'YEARWEEK',
 ]
+
 const keywords = [...keyword, ...operators, ...builtinFunctions]
 
 export { keywords }

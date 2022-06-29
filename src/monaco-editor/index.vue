@@ -3,15 +3,20 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatabaseOption } from "@/monaco-editor-core/snippets"
+import type { DatabaseOption } from "@/monaco-editor-core/type"
 import SqlSnippets from '@/monaco-editor-core/snippets'
 import * as monaco from 'monaco-editor'
 // 拦截 command + f 快捷键
 import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
 // sql 语法高亮
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
+
 import type { PropType } from "vue"
+
 import { nextTick, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
+
+// vscode 主题枚举
+type ThemeType = "vs" | "vs-dark" | "vs-high"
 
 const emit = defineEmits(["update:sql"])
 
@@ -62,6 +67,12 @@ const props = defineProps({
     default: () => 100,
   },
 
+  // 编译器主题
+  monacoEditorTheme: {
+    type: String, //as PropType<ThemeType>,
+    default: () => "vs-dark",
+  },
+
   // 编译器配置项
   monacoEditorOption: {
     type: Object as PropType<monaco.editor.IStandaloneEditorConstructionOptions>,
@@ -85,7 +96,7 @@ const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOpti
   lineHeight: 30,
   value: props.modelValue,
   language: 'sql',
-  theme: 'vs-dark',
+  theme: props.monacoEditorTheme,
   selectOnLineNumbers: true,
   contextmenu: false, //关闭右键
   suggestOnTriggerCharacters: true,
@@ -99,7 +110,6 @@ const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOpti
 
 // 做组件的双向绑定
 watch(() => props.modelValue, (newSql: string) => {
-  // 解决双向绑定换行 光标跳到第一行第一列的问题 
   if (!monacoEditor.value?.hasTextFocus()) {
     toRaw(monacoEditor.value)?.setValue(newSql)
   }
@@ -114,14 +124,16 @@ watch(() => props.width, () => {
 })
 // 监听编译器样式参数的变化 end
 
-
-
+// 监听 编译器 主题参数
+watch(() => props.monacoEditorTheme, (newTheme: string) => {
+  monaco.editor.setTheme(newTheme)
+})
 
 // 设置 编译器宽高
 const setMonacoEditorStyle = () => {
   // 获取 monacoEditorDom 节点的父节点
-  const parentElementWidth = window.getComputedStyle((monacoEditorDom.value as HTMLDivElement).parentElement!).width
-  const parentElementWidthNumber = Number(parentElementWidth.substring(0, parentElementWidth.length - 2))
+  const parentElementWidthString = window.getComputedStyle((monacoEditorDom.value as HTMLDivElement).parentElement!).width
+  const parentElementWidthNumber = Number(parentElementWidthString.substring(0, parentElementWidthString.length - 2))
   toRaw(monacoEditor.value)?.layout({ width: props.width ? props.width : parentElementWidthNumber, height: props.height })
 }
 
@@ -137,11 +149,9 @@ const initEditor = () => {
 
 
   completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
-    // 提示的触发字符
+    // 触发提示的字符
     triggerCharacters: [' ', '.', ...(props.triggerCharacters)],
-    provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
-      return sqlSnippets.provideCompletionItems(model, position)
-    }
+    provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => sqlSnippets.provideCompletionItems(model, position)
   })
 
   // 创建editor实例
