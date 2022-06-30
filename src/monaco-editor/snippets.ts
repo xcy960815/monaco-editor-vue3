@@ -4,7 +4,7 @@ import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption,
 
 import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/sql.js"
 
-export default class Snippets {
+export class SqlSnippets {
 
     monaco: Monaco
 
@@ -37,7 +37,6 @@ export default class Snippets {
             ...this.customKeywords
         ]
 
-        console.log("databaseKeywords", this.databaseKeywords);
 
 
         // 记录数据库选项

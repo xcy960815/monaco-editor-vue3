@@ -1,4 +1,4 @@
-# monaco-editor-vue3
+# vue3-monaco-editor
 
 ## Project setup
 ```

@@ -1,19 +1,32 @@
 <template>
   <div ref="monacoEditorDom"></div>
 </template>
+<script lang="ts">
+// 解决 在setup 语法糖中无法定义 name 属性的问题
+export default {
+  name: "monaco-editor",
+  installed: false
+}
+</script>
+<script lang="ts" setup >
 
-<script lang="ts" setup>
-import type { DatabaseOption, ThemeType } from "@/monaco-editor-core/type"
-import SqlSnippets from '@/monaco-editor-core/snippets'
+import type { DatabaseOption, ThemeType } from "./type"
+
+import { SqlSnippets } from './snippets'
+
 import * as monaco from 'monaco-editor'
+
 // 拦截 command + f 快捷键
 import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
+
 // sql 语法高亮
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
+
 import type { PropType } from "vue"
+
 import { onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
 
-const emit = defineEmits(["update:sql"])
+const emit = defineEmits(["update:modelValue"])
 
 const props = defineProps({
   // sql 语句
@@ -66,8 +79,6 @@ const props = defineProps({
   }
 })
 
-
-
 // monacoEditor 挂载的dom节点
 const monacoEditorDom = ref<HTMLDivElement>()
 
@@ -97,10 +108,8 @@ const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOpti
 
 // 做组件的双向绑定
 watch(() => props.modelValue, (newSql: string) => {
-  // 解决双向绑定换行 光标跳到第一行第一列的问题 
-  if (!monacoEditor.value?.hasTextFocus()) {
-    toRaw(monacoEditor.value)?.setValue(newSql)
-  }
+  const hasTextFocus = monacoEditor.value?.hasTextFocus()
+  if (!hasTextFocus) toRaw(monacoEditor.value)?.setValue(newSql)
 })
 
 // 监听编译器样式参数的变化 start
@@ -112,6 +121,7 @@ watch(() => props.width, () => {
 })
 // 监听编译器样式参数的变化 end
 
+// 监听 monaco-editor 主题
 watch(() => props.monacoEditorTheme, (monacoEditorTheme: ThemeType) => {
   monaco.editor.setTheme(monacoEditorTheme)
 })
@@ -133,10 +143,9 @@ const initEditor = () => {
     props.databaseOptions,
   )
 
-
   completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
     // 提示的触发字符
-    triggerCharacters: [' ', '.', ...(props.triggerCharacters)],
+    triggerCharacters: [' ', '.', ...props.triggerCharacters],
     // 因为在js代码中 range 属性不配置也可以正常显示  所以 在这里避免代码抛错  使用了一个 别名 
     provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => sqlSnippets.provideCompletionItems(model, position) as monaco.languages.ProviderResult<monaco.languages.CompletionList>
   })
@@ -147,9 +156,8 @@ const initEditor = () => {
   // 渲染 编译器 宽高
   if (props.height) setMonacoEditorStyle()
 
-
   // 监听编译器里面的值的变化
-  monacoEditor.value.onDidChangeModelContent(() => { emit("update:sql", toRaw(monacoEditor.value!).getValue()) })
+  monacoEditor.value.onDidChangeModelContent(() => { emit("update:modelValue", toRaw(monacoEditor.value!).getValue()) })
 }
 
 onMounted(() => {

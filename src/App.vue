@@ -1,7 +1,7 @@
 <template>
-    <monaca-editor :height="monacaEditorHeight" v-model="defaultSql" :monacoEditorTheme="monacoEditorTheme"
+    <monaco-editor :height="monacaEditorHeight" v-model="defaultSql" :monacoEditorTheme="monacoEditorTheme"
         :customKeywords="customKeywords" :databaseOptions="databaseOptionsState.databaseOptions">
-    </monaca-editor>
+    </monaco-editor>
     <!-- 测试编辑器的其他属性 -->
     <div style="margin-top:20px;margin-bottom: 20px;">
         <button class="config-button" @click="monacaEditorHeight += 100">编译器 高度增加100px </button>
@@ -14,10 +14,14 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from "vue"
-import MonacaEditor from "@/monaco-editor/index.vue"
-import { ThemeType, DatabaseOption } from "@/monaco-editor-core/type"
+
+
+import { ThemeType, DatabaseOption } from "@/monaco-editor/type"
+
 // 编译器高度
 const monacaEditorHeight = ref<number>(300)
+
+
 
 // 测试sql
 const defaultSql = `select * from dual
