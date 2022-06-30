@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { DatabaseOption } from "@/monaco-editor-core/type"
+import type { DatabaseOption, ThemeType } from "@/monaco-editor-core/type"
 import SqlSnippets from '@/monaco-editor-core/snippets'
 import * as monaco from 'monaco-editor'
 // 拦截 command + f 快捷键
@@ -57,6 +57,12 @@ const props = defineProps({
   monacoEditorOption: {
     type: Object as PropType<monaco.editor.IStandaloneEditorConstructionOptions>,
     default: {}
+  },
+
+  // 编译器主题
+  monacoEditorTheme: {
+    type: String as PropType<ThemeType>,
+    default: "vs"
   }
 })
 
@@ -105,7 +111,9 @@ watch(() => props.width, () => {
 })
 // 监听编译器样式参数的变化 end
 
-watch
+watch(() => props.monacoEditorTheme, (monacoEditorTheme: ThemeType) => {
+  monaco.editor.setTheme(monacoEditorTheme)
+})
 
 
 

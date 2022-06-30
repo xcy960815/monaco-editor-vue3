@@ -1,7 +1,6 @@
 <template>
     <monaca-editor :height="monacaEditorHeight" v-model="defaultSql" :monacoEditorTheme="monacoEditorTheme"
-        :customKeywords="customKeywords">
-        <!-- :databaseOptions="databaseOptionsState.databaseOptions" -->
+        :customKeywords="customKeywords" :databaseOptions="databaseOptionsState.databaseOptions">
     </monaca-editor>
     <div style="margin-top:20px;margin-bottom: 20px;">
         <button class="config-button" @click="monacaEditorHeight += 100">编译器 高度增加 </button>
@@ -14,7 +13,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from "vue"
 import MonacaEditor from "@/monaco-editor/index.vue"
-
+import { ThemeType, DatabaseOption } from "@/monaco-editor-core/type"
 // 编译器高度
 const monacaEditorHeight = ref<number>(300)
 
@@ -23,15 +22,17 @@ const defaultSql = `select * from dual
 where id = "123"
 limit abs accessible acos add aes_decrypt acos abs text
 
-select * from db_bar.user.`
+select * from db_bar.user
+
+select `
 
 const customKeywords = ["xuchongyu", "woaiwoajia"]
 
 // 编译器主题
-const monacoEditorTheme = ref("vs-dark")
+const monacoEditorTheme = ref<ThemeType>("vs-dark")
 
 // 模拟的数据库数据 包含 库名表明
-const databaseOptionsState = reactive({
+const databaseOptionsState = reactive<{ databaseOptions: Array<DatabaseOption> }>({
     databaseOptions: [
         {
             databaseName: 'db_bar',
@@ -41,17 +42,39 @@ const databaseOptionsState = reactive({
                     tableComment: "我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注",
                     fieldOptions: [
                         {
-                            fieldName: 'username'
+                            fieldName: 'userfieldName',
+                            fieldComment: "字段备注",
+                            fieldType: "123",
+                            tableName: "user",
+                            databaseName: "db_bar"
                         }
                     ]
                 },
                 {
                     tableName: 'log',
-                    fieldOptions: []
+                    tableComment: "log表备注",
+                    fieldOptions: [
+                        {
+                            fieldName: 'logfieldName',
+                            fieldComment: "log字段备注",
+                            fieldType: "123",
+                            tableName: "log",
+                            databaseName: "db_bar"
+                        }
+                    ]
                 },
                 {
                     tableName: 'goods',
-                    fieldOptions: []
+                    tableComment: "goods表备注",
+                    fieldOptions: [
+                        {
+                            fieldName: 'goodsfieldName',
+                            fieldComment: "goods字段备注",
+                            fieldType: "123",
+                            tableName: "goods",
+                            databaseName: "db_bar"
+                        }
+                    ]
                 }
             ]
         },
@@ -60,14 +83,17 @@ const databaseOptionsState = reactive({
             tableOptions: [
                 {
                     tableName: 'price',
+                    tableComment: "price表备注",
                     fieldOptions: []
                 },
                 {
                     tableName: 'time',
+                    tableComment: "time表备注",
                     fieldOptions: []
                 },
                 {
                     tableName: 'updata_user',
+                    tableComment: "updata_user表备注",
                     fieldOptions: []
                 }
             ]
@@ -76,7 +102,7 @@ const databaseOptionsState = reactive({
 })
 
 // 变更编译器主题
-const handleSetEditorTheme = (theme: string) => monacoEditorTheme.value = theme
+const handleSetEditorTheme = (theme: ThemeType) => monacoEditorTheme.value = theme
 </script>
 
 <style scoped>

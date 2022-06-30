@@ -1,6 +1,22 @@
 
 import * as monaco from "monaco-editor"
 
+export interface Monaco {
+    // CancellationTokenSource: typeof monaco.CancellationTokenSource
+    // Emitter: typeof monaco.Emitter<any>
+    // KeyCode: typeof monaco.KeyCode
+    // KeyMod: typeof monaco.KeyMod
+    // MarkerSeverity: typeof monaco.MarkerSeverity
+    // MarkerTag: typeof monaco.MarkerTag
+    // Position: typeof monaco.Position
+    // Range: typeof monaco.Range
+    // Selection: typeof monaco.Selection
+    // SelectionDirection: typeof monaco.SelectionDirection
+    // Token: typeof monaco.Token
+    // Uri: typeof monaco.Uri
+    // editor: typeof monaco.editor
+    languages: typeof monaco.languages
+}
 
 // 列选项
 export type FieldOption = {
@@ -32,7 +48,7 @@ export type SortText = {
     Keyword: "3"
 }
 
-// 重写建议选项
+// 重写建议声明
 export interface SuggestOption
     extends Pick<
     monaco.languages.CompletionItem,
@@ -45,4 +61,4 @@ export interface SuggestOption
 }
 
 
-export type ThemeType = "vs" | "vs-dark"
+export type ThemeType = "vs" | "vs-dark" | 'hc-black'
