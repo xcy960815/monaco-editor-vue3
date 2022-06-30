@@ -1,8 +1,8 @@
 import * as monaco from 'monaco-editor'
 
-import { keywords } from './keywords'
-
 import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption, Monaco } from "./type"
+
+import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/sql.js"
 
 export default class Snippets {
 
@@ -27,13 +27,18 @@ export default class Snippets {
         }
 
         // 记录自定义关键字
-        this.customKeywords = customKeywords ? customKeywords : []
+        this.customKeywords = customKeywords || []
 
-        // 数据库关键字
+        // 数据库关键字 将自定义关键字也柔和进去
         this.databaseKeywords = [
-            ...keywords,
-            ...(customKeywords ? customKeywords : []),
+            ...Language.keywords,
+            ...Language.operators,
+            ...Language.builtinFunctions,
+            ...this.customKeywords
         ]
+
+        console.log("databaseKeywords", this.databaseKeywords);
+
 
         // 记录数据库选项
         this.databaseOptions = databaseOptions || []
@@ -108,7 +113,7 @@ export default class Snippets {
         })
 
 
-        const textBeforePointerMultiSemicolon = textBeforePointerMulti.split(';')
+        // const textBeforePointerMultiSemicolon = textBeforePointerMulti.split(';')
 
         return {
             textBeforePointer,
@@ -146,12 +151,16 @@ export default class Snippets {
         if (textBeforeLastToken.endsWith('.')) {
             // 如果最后一个文本后面 包含. 判断这个点之前的内容是否是database 
             const textBeforeLastTokenNoDot = textBeforeLastToken.slice(0, textBeforeLastToken.length - 1)
-            // 是不是数据库
+            console.log("textBeforeLastTokenNoDot", textBeforeLastTokenNoDot);
+            console.log("this.databaseOptions", this.databaseOptions);
+
+            // 是否是数据库
             const isDatabase = Boolean(this.databaseOptions.find(
-                (databaseOption) =>
+                (databaseOption: DatabaseOption) =>
                     databaseOption.databaseName ===
                     textBeforeLastTokenNoDot.replace(/^.*,/g, '')
             ))
+            console.log("isDatabase", isDatabase);
 
             if (isDatabase) {
                 // <库名>.<表名> 联想
@@ -179,7 +188,7 @@ export default class Snippets {
                 if (currentTable && currentTable.tableName) {
                     return {
                         suggestions:
-                            this.getTableColumnSuggestByTableAlia(),
+                            this.getFieldOptionsSuggestByTableAlia(),
                     }
                 } else {
                     return {
@@ -199,34 +208,37 @@ export default class Snippets {
                 textBeforePointer.replace(/.*?\(/gm, '').toLowerCase()
             )
         ) {
-            const dataBaseSuggest = this.getDataBaseSuggest()
+            const dataBaseOptionsSuggest = this.getDataBaseOptionsSuggestions()
             return {
-                suggestions: dataBaseSuggest,
+                suggestions: dataBaseOptionsSuggest,
             }
 
         } else if (
             ['select', 'where', 'order by', 'group by', 'by', 'and', 'or', 'having', 'distinct', 'on',].includes(textBeforeLastToken.replace(/.*?\(/g, '')) ||
-            (textBeforeLastToken.endsWith('.') && !this.databaseOptions.find((databaseOption) => `${databaseOption.databaseName}.` === textBeforeLastToken)) ||
+            (textBeforeLastToken.endsWith('.') && !this.databaseOptions.find((databaseOption: DatabaseOption) => `${databaseOption.databaseName}.` === textBeforeLastToken)) ||
             /(select|where|order by|group by|by|and|or|having|distinct|on)\s+.*?\s?,\s*$/.test(textBeforePointer.toLowerCase())
         ) {
             // 字段联想
             return {
-                suggestions: this.getFieldOptionsSuggest(),
+                suggestions: this.getFieldOptionsSuggestions(),
             }
 
-        } else if (this.customKeywords.toString().includes(textBeforeLastToken)) {
-            // 自定义字段联想
-            return {
-                suggestions: this.getCustomSuggest(textBeforeLastToken.startsWith('$')),
-            }
+        }
 
-        } else {
-            // 默认联想
+        // else if (this.customKeywords.toString().includes(textBeforeLastToken)) {
+        //     // 自定义字段联想
+        //     return {
+        //         suggestions: this.getCustomSuggestions(textBeforeLastToken.startsWith('$')),
+        //     }
+        // }
+
+        else {
+            // 默认联想 数据库联想、关键字联想、表联想
             return {
                 suggestions: [
-                    ...this.getDataBaseSuggest(),
-                    ...this.getTableSuggest(),
-                    ...this.getKeywordSuggest(),
+                    ...this.getDataBaseOptionsSuggestions(),
+                    ...this.getTableOptionsSuggestions(),
+                    ...this.getKeywordOptionsSuggestions(),
                 ],
             }
         }
@@ -235,7 +247,7 @@ export default class Snippets {
     /**
      * 获取自定义联想建议
      */
-    getCustomSuggest(startsWith$: boolean): Array<SuggestOption> {
+    getCustomSuggestions(startsWith$: boolean): Array<SuggestOption> {
         return this.customKeywords.map((customKeyword) => ({
             label: customKeyword,
             kind: this.monaco.languages.CompletionItemKind.Keyword,
@@ -250,7 +262,7 @@ export default class Snippets {
     /**
      * 获取数据库库名联想建议
      */
-    getDataBaseSuggest = (): Array<SuggestOption> => {
+    getDataBaseOptionsSuggestions = (): Array<SuggestOption> => {
         return this.databaseOptions.map((databaseOption: DatabaseOption) => {
             return {
                 label: databaseOption.databaseName || '',
@@ -266,7 +278,7 @@ export default class Snippets {
      * 获取关键字联想建议
      * @param {*} keyword
      */
-    getKeywordSuggest = (): Array<SuggestOption> => {
+    getKeywordOptionsSuggestions = (): Array<SuggestOption> => {
         return this.databaseKeywords.map((databaseKeyword: string) => ({
             label: databaseKeyword,
             kind: this.monaco.languages.CompletionItemKind.Keyword,
@@ -283,7 +295,7 @@ export default class Snippets {
      * 获取数据库表名建议
      * @return { Array<SuggestOption> } []
      */
-    getTableSuggest = (): Array<SuggestOption> => {
+    getTableOptionsSuggestions = (): Array<SuggestOption> => {
         const suggestOptions: Array<SuggestOption> = []
         this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
             databaseOption.tableOptions.forEach((tableOption: TableOption) => {
@@ -321,23 +333,23 @@ export default class Snippets {
      * 获取所有表字段
      * @return {Array<SuggestOption>} []
      */
-    getFieldOptionsSuggest = (): Array<SuggestOption> => {
+    getFieldOptionsSuggestions = (): Array<SuggestOption> => {
         const defaultFieldOptions: Array<SuggestOption> = []
         this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
             databaseOption.tableOptions.forEach((tableOption: TableOption) => {
                 tableOption.fieldOptions && tableOption.fieldOptions.forEach(
-                    (fieldOptions) => {
+                    (fieldOption: FieldOption) => {
                         defaultFieldOptions.push({
-                            label: fieldOptions.fieldName || '',
+                            label: fieldOption.fieldName || '',
                             kind: this.monaco.languages.CompletionItemKind.Field,
-                            detail: `<字段> ${fieldOptions.fieldComment || ''} <${fieldOptions.fieldName}>`,
+                            detail: `<字段> ${fieldOption.fieldComment || ''} <${fieldOption.fieldName}>`,
                             sortText: this.sortText.Column,
-                            insertText: fieldOptions.fieldName || '',
+                            insertText: fieldOption.fieldName || '',
                             documentation: {
                                 value: `
-  ### 数据库: ${fieldOptions.databaseName}
-  ### 表: ${fieldOptions.tableName}
-  ### 注释: ${fieldOptions.fieldComment || ''}`,
+  ### 数据库: ${fieldOption.databaseName}
+  ### 表: ${fieldOption.tableName}
+  ### 注释: ${fieldOption.fieldComment || ''}`,
                             },
                         })
                     }
@@ -351,7 +363,7 @@ export default class Snippets {
      * 根据别名获取所有表字段
      * @return {Array<SuggestOption>} []
      */
-    getTableColumnSuggestByTableAlia = (): Array<SuggestOption> => {
+    getFieldOptionsSuggestByTableAlia = (): Array<SuggestOption> => {
         const defaultFieldOptions: Array<SuggestOption> = []
         this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
             databaseOption.tableOptions.forEach((tableOption: TableOption) => {

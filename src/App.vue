@@ -2,8 +2,10 @@
     <monaca-editor :height="monacaEditorHeight" v-model="defaultSql" :monacoEditorTheme="monacoEditorTheme"
         :customKeywords="customKeywords" :databaseOptions="databaseOptionsState.databaseOptions">
     </monaca-editor>
+    <!-- 测试编辑器的其他属性 -->
     <div style="margin-top:20px;margin-bottom: 20px;">
-        <button class="config-button" @click="monacaEditorHeight += 100">编译器 高度增加 </button>
+        <button class="config-button" @click="monacaEditorHeight += 100">编译器 高度增加100px </button>
+        <button class="config-button" @click="monacaEditorHeight -= 100">编译器 高度减少100px </button>
         <button class="config-button" @click="handleSetEditorTheme('vs')">编译器 主题 vs </button>
         <button class="config-button" @click="handleSetEditorTheme('vs-dark')">编译器 主题 vs-dark </button>
         <button class="config-button" @click="handleSetEditorTheme('hc-black')">编译器 主题 hc-black </button>
@@ -11,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue"
+import { ref, reactive, onMounted } from "vue"
 import MonacaEditor from "@/monaco-editor/index.vue"
 import { ThemeType, DatabaseOption } from "@/monaco-editor-core/type"
 // 编译器高度
@@ -24,7 +26,7 @@ limit abs accessible acos add aes_decrypt acos abs text
 
 select * from db_bar.user
 
-select `
+select`
 
 const customKeywords = ["xuchongyu", "woaiwoajia"]
 
@@ -33,76 +35,54 @@ const monacoEditorTheme = ref<ThemeType>("vs-dark")
 
 // 模拟的数据库数据 包含 库名表明
 const databaseOptionsState = reactive<{ databaseOptions: Array<DatabaseOption> }>({
-    databaseOptions: [
-        {
-            databaseName: 'db_bar',
-            tableOptions: [
-                {
-                    tableName: 'user',
-                    tableComment: "我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注我是表备注",
-                    fieldOptions: [
-                        {
-                            fieldName: 'userfieldName',
-                            fieldComment: "字段备注",
-                            fieldType: "123",
-                            tableName: "user",
-                            databaseName: "db_bar"
-                        }
-                    ]
-                },
-                {
-                    tableName: 'log',
-                    tableComment: "log表备注",
-                    fieldOptions: [
-                        {
-                            fieldName: 'logfieldName',
-                            fieldComment: "log字段备注",
-                            fieldType: "123",
-                            tableName: "log",
-                            databaseName: "db_bar"
-                        }
-                    ]
-                },
-                {
-                    tableName: 'goods',
-                    tableComment: "goods表备注",
-                    fieldOptions: [
-                        {
-                            fieldName: 'goodsfieldName',
-                            fieldComment: "goods字段备注",
-                            fieldType: "123",
-                            tableName: "goods",
-                            databaseName: "db_bar"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            databaseName: 'db_foo',
-            tableOptions: [
-                {
-                    tableName: 'price',
-                    tableComment: "price表备注",
-                    fieldOptions: []
-                },
-                {
-                    tableName: 'time',
-                    tableComment: "time表备注",
-                    fieldOptions: []
-                },
-                {
-                    tableName: 'updata_user',
-                    tableComment: "updata_user表备注",
-                    fieldOptions: []
-                }
-            ]
-        }
-    ]
+    databaseOptions: []
 })
 
 // 变更编译器主题
 const handleSetEditorTheme = (theme: ThemeType) => monacoEditorTheme.value = theme
+
+// 给database mock数据
+const initDatabaseOptions = () => {
+    for (let index = 1; index <= 1000; index++) {
+        databaseOptionsState.databaseOptions.push({
+            databaseName: `databaseName${index}`,
+            tableOptions: [
+                {
+                    tableName: `tableName1`,
+                    tableComment: "tableComment1",
+                    fieldOptions: [
+                        {
+                            fieldName: "fieldName1",
+                            fieldComment: "fieldComment1",
+                            fieldType: "string",
+                            tableName: "tableName1",
+                            databaseName: `databaseName${index}`,
+                        },
+                        {
+                            fieldName: "fieldName2",
+                            fieldComment: "fieldComment2",
+                            fieldType: "string",
+                            tableName: "tableName1",
+                            databaseName: `databaseName${index}`,
+                        },
+                        {
+                            fieldName: "fieldName3",
+                            fieldComment: "fieldComment3",
+                            fieldType: "string",
+                            tableName: "tableName1",
+                            databaseName: `databaseName${index}`,
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+}
+
+onMounted(() => {
+    initDatabaseOptions()
+})
+
 </script>
 
 <style scoped>

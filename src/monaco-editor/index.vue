@@ -78,6 +78,7 @@ const completionItemProvider = ref<monaco.IDisposable>()
 
 // 编译器的默认配置
 const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOptions = {
+  suggestSelection: "first",
   fontFamily: "MONACO",
   lineHeight: 30,
   value: props.modelValue,
