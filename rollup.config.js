@@ -38,7 +38,7 @@ const initConfig = () => {
                 format: 'umd',
                 sourcemap: true,
                 name: "MonacoEditor",
-                global: {
+                globals: {
                     "vue": 'vue',
                     'monaco-editor': 'monaco-editor'
                 },
