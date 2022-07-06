@@ -21,5 +21,17 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-  }
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "declarationMap": false
+  },
+  "include": [
+    "./src/monaco-editor"
+  ]
+  // "files": [
+  //   "./src/monaco-editor/index.ts",
+  //   "./src/monaco-editor/index.vue",
+  //   "./src/monaco-editor/snippets.ts",
+  //   "./src/monaco-editor/type.ts"
+  // ]
 }

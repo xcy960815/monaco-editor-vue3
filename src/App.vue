@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from "vue"
 
-
+// @ts-ignore
 import { ThemeType, DatabaseOption } from "@/monaco-editor/type"
 
 // 编译器高度
@@ -32,7 +32,7 @@ select * from db_bar.user
 
 select`
 
-const customKeywords = ["xuchongyu", "woaiwoajia"]
+const customKeywords = ["test1", "test2"]
 
 // 编译器主题
 const monacoEditorTheme = ref<ThemeType>("vs-dark")

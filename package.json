@@ -3,24 +3,26 @@
   "version": "0.1.1",
   "private": false,
   "main": "dist/monaco-editor.umd.js",
-  "types": "./src/monaco-editor/type.ts",
+  "module": "dist/monaco-editor.esm.js",
+  "types": "types/monaco-editor.d.ts",
   "scripts": {
     "serve": "vue-cli-service serve",
     "dev": "NODE_ENV=development rollup -c -w",
-    "build": "NODE_ENV=production rollup -c"
+    "build": "NODE_ENV=production rollup -c",
+    "build:ts": "api-extractor run --local --verbose "
   },
   "peerDependencies": {
     "vue": "^3.2.13",
     "monaco-editor": "^0.27.0"
   },
   "dependencies": {
-    "register-service-worker": "^1.7.2",
-    "vue": "^3.2.13",
-    "monaco-editor": "^0.27.0"
+    "monaco-editor": "^0.27.0",
+    "vue": "^3.2.13"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-runtime": "^7.14.5",
+    "@microsoft/api-extractor": "^7.28.3",
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
@@ -38,12 +40,14 @@
     "rollup": "^2.33.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-delete": "^2.0.0",
+    "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.30.0",
+    "rollup-plugin-typescript2": "^0.32.1",
+    "rollup-plugin-vue": "^6.0.0",
     "tslib": "^2.0.3",
     "typescript": "~4.5.5",
     "vite": "^2.9.13"
