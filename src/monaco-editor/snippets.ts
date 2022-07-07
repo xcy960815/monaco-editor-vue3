@@ -4,7 +4,7 @@ import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption,
 
 import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/sql.js"
 
-export class SqlSnippets {
+export default class SqlSnippets {
 
     monaco: Monaco
 

@@ -3,7 +3,7 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "mainEntryPointFilePath": "./dist/index.d.ts",
+  "mainEntryPointFilePath": "./temp/index.d.ts", // 从哪里获取声明
   "bundledPackages": [],
   "compiler": {
     "tsconfigFilePath": "./tsconfig.json"
@@ -16,7 +16,7 @@
   },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "./types/monaco-editor.d.ts"
+    "untrimmedFilePath": "./types/vue3-monaco-editor.d.ts" // 生成到指定的文件件内叫指定的文件名
   },
   "tsdocMetadata": {
     "enabled": false
@@ -24,7 +24,7 @@
   "messages": {
     "compilerMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "none"
       }
     },
     "extractorMessageReporting": {
@@ -34,7 +34,7 @@
     },
     "tsdocMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "none"
       }
     }
   }

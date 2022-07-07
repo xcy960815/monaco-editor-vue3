@@ -60,5 +60,7 @@ export interface SuggestOption
     };
 }
 
-
+/**
+ * 编译器主题枚举
+ */
 export type ThemeType = "vs" | "vs-dark" | 'hc-black'

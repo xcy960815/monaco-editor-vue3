@@ -6,6 +6,7 @@ node_modules
 .browserslistrc
 package-lock.json
 rollup.config.js
+api-extractor.json
 
 # local env files
 .env.local

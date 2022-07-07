@@ -1,10 +1,5 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
     "baseUrl": ".",
     "module": "esnext",
     "noImplicitAny": false,
@@ -18,20 +13,17 @@
       "ESNext",
       "DOM"
     ],
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "declarationDir": "./dist/types",
-    "declarationMap": false
+    "declarationDir": "./temp",
   },
   "include": [
     "./src/monaco-editor"
+  ],
+  "exclude": [
+    "./temp"
   ]
-  // "files": [
-  //   "./src/monaco-editor/index.ts",
-  //   "./src/monaco-editor/index.vue",
-  //   "./src/monaco-editor/snippets.ts",
-  //   "./src/monaco-editor/type.ts"
-  // ]
 }

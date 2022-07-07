@@ -1,103 +1,19 @@
 import { AllowedComponentProps } from 'vue';
 import { ComponentCustomProps } from 'vue';
+import { ComponentOptionsBase } from 'vue';
 import { ComponentOptionsMixin } from 'vue';
-import { DefineComponent } from 'vue';
-import { ExtractPropTypes } from 'vue';
+import { ComputedOptions } from 'vue';
+import { MethodOptions } from 'vue';
 import * as monaco from 'monaco-editor';
-import type { PropType } from 'vue';
-import { RendererElement } from 'vue';
-import { RendererNode } from 'vue';
-import { VNode } from 'vue';
+import { Plugin as Plugin_2 } from 'vue';
 import { VNodeProps } from 'vue';
 
-declare type DatabaseOption = {
+export declare type DatabaseOption = {
     databaseName: string;
     tableOptions: Array<TableOption>;
 };
 
-declare const _default: DefineComponent<    {
-modelValue: {
-type: StringConstructor;
-default: () => string;
-};
-triggerCharacters: {
-type: PropType<string[]>;
-default: () => any[];
-};
-customKeywords: {
-type: PropType<string[]>;
-default: () => any[];
-};
-databaseOptions: {
-type: PropType<DatabaseOption[]>;
-default: () => any[];
-};
-width: {
-type: NumberConstructor;
-default: () => number;
-};
-height: {
-type: NumberConstructor;
-default: () => number;
-};
-monacoEditorOption: {
-type: PropType<monaco.editor.IStandaloneEditorConstructionOptions>;
-default: {};
-};
-monacoEditorTheme: {
-type: PropType<ThemeType>;
-default: string;
-};
-}, (_ctx: any, _cache: any) => VNode<RendererNode, RendererElement, {
-[key: string]: any;
-}>, unknown, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", VNodeProps & AllowedComponentProps & ComponentCustomProps, Readonly<ExtractPropTypes<    {
-modelValue: {
-type: StringConstructor;
-default: () => string;
-};
-triggerCharacters: {
-type: PropType<string[]>;
-default: () => any[];
-};
-customKeywords: {
-type: PropType<string[]>;
-default: () => any[];
-};
-databaseOptions: {
-type: PropType<DatabaseOption[]>;
-default: () => any[];
-};
-width: {
-type: NumberConstructor;
-default: () => number;
-};
-height: {
-type: NumberConstructor;
-default: () => number;
-};
-monacoEditorOption: {
-type: PropType<monaco.editor.IStandaloneEditorConstructionOptions>;
-default: {};
-};
-monacoEditorTheme: {
-type: PropType<ThemeType>;
-default: string;
-};
-}>> & {
-"onUpdate:modelValue"?: (...args: any[]) => any;
-}, {
-modelValue: string;
-triggerCharacters: string[];
-customKeywords: string[];
-databaseOptions: DatabaseOption[];
-width: number;
-height: number;
-monacoEditorOption: {};
-monacoEditorTheme: ThemeType;
-}>;
-export default _default;
-
-declare type FieldOption = {
+export declare type FieldOption = {
     fieldName: string;
     fieldType: string;
     fieldComment: string;
@@ -105,12 +21,38 @@ declare type FieldOption = {
     tableName: string;
 };
 
-declare type TableOption = {
+export declare interface Monaco {
+    languages: typeof monaco.languages;
+}
+
+declare const MonacoEditorComponent: {
+    new (...args: any[]): any;
+    __isFragment?: never;
+    __isTeleport?: never;
+    __isSuspense?: never;
+} & ComponentOptionsBase<Readonly<{} & {} & {}>, {}, any, ComputedOptions, MethodOptions, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, {}> & VNodeProps & AllowedComponentProps & ComponentCustomProps & Plugin_2;
+export default MonacoEditorComponent;
+
+export declare type SortText = {
+    Database: "0";
+    Table: "1";
+    Column: "2";
+    Keyword: "3";
+};
+
+export declare interface SuggestOption extends Pick<monaco.languages.CompletionItem, Exclude<keyof monaco.languages.CompletionItem, 'range'>> {
+    range?: monaco.IRange | {
+        insert: monaco.IRange;
+        replace: monaco.IRange;
+    };
+}
+
+export declare type TableOption = {
     tableName: string;
     tableComment: string;
     fieldOptions: Array<FieldOption>;
 };
 
-declare type ThemeType = "vs" | "vs-dark" | 'hc-black';
+export declare type ThemeType = "vs" | "vs-dark" | 'hc-black';
 
 export { }
