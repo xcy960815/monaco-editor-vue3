@@ -1,5 +1,5 @@
 <template>
-  <div ref="monacoEditorDom" class="monaco-editor-dom">monaco-editor-dom</div>
+  <div ref="monacoEditorDom" class="monaco-editor-dom"></div>
 </template>
 <script lang='ts'>
 // import type { DatabaseOption, ThemeType } from "./type"
