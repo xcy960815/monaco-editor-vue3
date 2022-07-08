@@ -53,9 +53,10 @@ const initConfig = () => {
             }),
 
             nodeResolve({
-                mainField: ['jsnext:main', 'browser', 'module', 'main'],
-                browser: true,
-                // dedupe: ['vue']
+                // mainField: ['jsnext:main', 'browser', 'module', 'main'],
+                // browser: true,
+                // dedupe: ['vue'] // 解决 npm link 造成多个 版本vue的问题
+                extensions: [".ts", ".js"]
             }),
 
             vue(),

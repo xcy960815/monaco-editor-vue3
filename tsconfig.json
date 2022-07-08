@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "noLib": false,
+    "strict": false,
     "target": "es5",
     "lib": [
       "ESNext",
