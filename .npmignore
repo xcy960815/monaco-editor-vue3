@@ -3,6 +3,7 @@ node_modules
 /script
 /public
 /src
+/temp
 .browserslistrc
 package-lock.json
 rollup.config.js
