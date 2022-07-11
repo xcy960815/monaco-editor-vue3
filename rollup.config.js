@@ -61,8 +61,8 @@ const initConfig = () => {
             nodeResolve({
                 // mainField: ['jsnext:main', 'browser', 'module', 'main'],
                 // browser: true,
-                // dedupe: ['vue'] // 解决 npm link 造成多个 版本vue的问题
-                extensions: [".ts", ".js"]
+                dedupe: ['vue'], // 解决 npm link 造成多个 版本vue的问题
+                extensions: [".ts", ".js"] // 解决在.vue文件里面引用ts文件 找不到的问题
             }),
 
             vue(),
