@@ -5,13 +5,15 @@
 import type { DatabaseOption, ThemeType } from "./type"
 import * as monaco from 'monaco-editor'
 // 拦截 command + f 快捷键
-import 'monaco-editor/esm/vs/editor/contrib/find/findController.js'
+import 'monaco-editor/esm/vs/editor/contrib/find/findController'
 // sql 语法高亮
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
+
+// import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution'
 import type { PropType } from "vue"
 import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch, } from 'vue'
+// 语法联想模块
 import SqlSnippets from "./snippets"
-
 
 export default defineComponent({
   name: "MonacoEditor",
@@ -137,9 +139,10 @@ export default defineComponent({
       completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
         // 提示的触发字符
         triggerCharacters: [' ', '.', ...props.triggerCharacters],
-        // 因为在js代码中 range 属性不配置也可以正常显示  所以 在这里避免代码抛错  使用了一个 别名 
+        // 因为在js代码中 range 属性不配置也可以正常显示  所以 在这里避免代码抛错  使用了一个 别名
         provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => sqlSnippets.provideCompletionItems(model, position) as monaco.languages.ProviderResult<monaco.languages.CompletionList>
       })
+
       // 创建editor实例
       monacoEditor.value = monaco.editor.create(monacoEditorDom.value!, JSON.stringify(props.monacoEditorOption) === "{}" ? monacoEditorDefaultOption : props.monacoEditorOption)
       // 渲染 编译器 宽高

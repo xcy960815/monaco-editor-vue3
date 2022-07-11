@@ -1,6 +1,6 @@
 {
   "name": "vue3-monaco-editor",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "private": false,
   "main": "dist/monaco-editor.umd.js",
   "module": "dist/monaco-editor.esm.js",
@@ -17,6 +17,17 @@
   },
   "dependencies": {
     "vue": "^3.2.25"
+  },
+  "keywords": [
+    "vue3",
+    "sql",
+    "monaco",
+    "monaco-editor",
+    "editor"
+  ],
+  "author": {
+    "name": "xuchongyu",
+    "email": "18763006837@163.com"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",

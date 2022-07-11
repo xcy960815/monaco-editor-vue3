@@ -34,7 +34,10 @@ const initConfig = () => {
                 name: "MonacoEditor",
                 globals: {
                     "vue": 'vue',
-                    'monaco-editor': 'monaco-editor'
+                    'monaco-editor': 'monaco-editor',
+                    "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
+                    "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
+                    'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
                 },
             },
             {
@@ -43,7 +46,10 @@ const initConfig = () => {
                 name: "MonacoEditor",
                 globals: {
                     "vue": 'vue',
-                    'monaco-editor': 'monaco-editor'
+                    'monaco-editor': 'monaco-editor',
+                    "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
+                    "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
+                    'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
                 },
             }
         ],
@@ -120,7 +126,7 @@ const initConfig = () => {
         // },
 
         // external: Object.keys(require(path.resolve(__dirname, './package.json')).peerDependencies || {}),
-        external: ["monaco-editor", "vue"]
+        external: ["monaco-editor", "vue", "monaco-editor/esm/vs/basic-languages/sql/sql.js", "monaco-editor/esm/vs/editor/contrib/find/findController", 'monaco-editor/esm/vs/editor/contrib/hover/hover']
     }
 }
 
