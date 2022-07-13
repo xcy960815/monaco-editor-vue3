@@ -13,7 +13,7 @@ import 'monaco-editor/esm/vs/editor/contrib/hover/hover'
 import type { PropType } from "vue"
 import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch, } from 'vue'
 // 语法联想模块
-import SqlSnippets from "./snippets"
+import {SqlSnippets} from "./snippets"
 
 export default defineComponent({
   name: "MonacoEditor",

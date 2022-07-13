@@ -3,7 +3,7 @@
     :customKeywords="customKeywords" :databaseOptions="databaseOptionsState.databaseOptions">
   </monaco-editor>
   <!-- 测试编辑器的其他属性 -->
-  <div style="margin-top:20px;margin-bottom: 20px;">
+  <div class="config-buttons" >
     <button class="config-button" @click="monacaEditorHeight += 100">编译器 高度增加100px </button>
     <button class="config-button" @click="monacaEditorHeight -= 100">编译器 高度减少100px </button>
     <button class="config-button" @click="handleSetEditorTheme('vs')">编译器 主题 vs </button>
@@ -90,8 +90,13 @@ onMounted(() => {
 
 </script>
 
-<style scoped>
-.config-button {
+<style lang="less" scoped>
+.config-buttons {
+  margin-top:20px;
+  margin-bottom: 20px;
+  .config-button {
   margin-right: 10px;
 }
+}
+
 </style>

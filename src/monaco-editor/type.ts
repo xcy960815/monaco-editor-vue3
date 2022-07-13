@@ -48,7 +48,7 @@ export type SortText = {
     Keyword: "3"
 }
 
-// 重写建议声明
+// 重写monaco-editor建议声明
 export interface SuggestOption
     extends Pick<
     monaco.languages.CompletionItem,
