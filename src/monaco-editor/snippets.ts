@@ -38,7 +38,6 @@ export default class SqlSnippets {
         ]
 
 
-
         // 记录数据库选项
         this.databaseOptions = databaseOptions || []
 
@@ -50,7 +49,7 @@ export default class SqlSnippets {
     /**
      * 动态设置数据库表&&数据库字段
      * @param {*} databaseOptions 数据库数据
-     * @example [{ databaseName: '', tableOptions: [{ tableName: '', fielsOptions: [ { fielName:"" }] }] }]
+     * @example [{ databaseName: '', tableOptions: [{ tableName: '', fielsOptions: [ {  fieldName: "" ,fieldType: "" ,fieldComment: "" ,databaseName: "" ,tableName: ""  }] }] }]
      */
     setDatabaseOption(databaseOptions: Array<DatabaseOption>) {
         this.databaseOptions = databaseOptions
@@ -60,7 +59,7 @@ export default class SqlSnippets {
      * 获取关于光标所有的文本
      * @param { monaco.editor.ITextModel } model
      * @param { monaco.Position } position
-     * @return {
+     * @returns {
      *  textBeforePointer：光标前面当前行文本
      *  textBeforePointerMulti:光标前第一行到光标位置所有的文本
      *  textAfterPointer:光标后当前行文本
@@ -120,7 +119,6 @@ export default class SqlSnippets {
             textAfterPointer,
             textAfterPointerMulti
         }
-
     }
 
     /**
@@ -129,7 +127,7 @@ export default class SqlSnippets {
      * @param { monaco.Position } position
      */
     async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
-        // 获取关于光标周围的sql内容
+        // 获取光标周围的sql内容
         const {
             textBeforePointer,
             textBeforePointerMulti,
@@ -147,21 +145,19 @@ export default class SqlSnippets {
         // 光标前最后一个字段
         const textBeforeLastToken = textBeforeTokens[textBeforeTokens.length - 1].toLowerCase()
 
+        // 有可能是 库名.表名.字段 
+        // 有可能是 表名.字段
         if (textBeforeLastToken.endsWith('.')) {
             // 如果最后一个文本后面 包含. 判断这个点之前的内容是否是database 
             const textBeforeLastTokenNoDot = textBeforeLastToken.slice(0, textBeforeLastToken.length - 1)
-            console.log("textBeforeLastTokenNoDot", textBeforeLastTokenNoDot);
-            console.log("this.databaseOptions", this.databaseOptions);
 
+            debugger
             // 是否是数据库
-            const isDatabase = Boolean(this.databaseOptions.find(
-                (databaseOption: DatabaseOption) =>
-                    databaseOption.databaseName ===
-                    textBeforeLastTokenNoDot.replace(/^.*,/g, '')
-            ))
-            console.log("isDatabase", isDatabase);
+            const databaseOption = this.databaseOptions.find(
+                (databaseOption: DatabaseOption) => databaseOption.databaseName.toLowerCase() === textBeforeLastTokenNoDot.replace(/^.*,/g, '')
+            )
 
-            if (isDatabase) {
+            if (databaseOption) {
                 // <库名>.<表名> 联想
                 // 如果是数据库 就获取当前database 下面的 tableOptions
                 const databaseName = textBeforeLastTokenNoDot.replace(/^.*,/g, '')
@@ -199,7 +195,7 @@ export default class SqlSnippets {
                     suggestions: [],
                 }
             }
-            // 库名联想
+
         } else if (
             textBeforeLastToken === 'from' ||
             textBeforeLastToken === 'join' ||
@@ -207,7 +203,8 @@ export default class SqlSnippets {
                 textBeforePointer.replace(/.*?\(/gm, '').toLowerCase()
             )
         ) {
-            const dataBaseOptionsSuggest = this.getDataBaseOptionsSuggestions()
+            // 库名联想
+            const dataBaseOptionsSuggest = this.getDatabaseOptionsSuggestions()
             return {
                 suggestions: dataBaseOptionsSuggest,
             }
@@ -235,7 +232,7 @@ export default class SqlSnippets {
             // 默认联想 数据库联想、关键字联想、表联想
             return {
                 suggestions: [
-                    ...this.getDataBaseOptionsSuggestions(),
+                    ...this.getDatabaseOptionsSuggestions(),
                     ...this.getTableOptionsSuggestions(),
                     ...this.getKeywordOptionsSuggestions(),
                 ],
@@ -261,7 +258,7 @@ export default class SqlSnippets {
     /**
      * 获取数据库库名联想建议
      */
-    getDataBaseOptionsSuggestions = (): Array<SuggestOption> => {
+    getDatabaseOptionsSuggestions = (): Array<SuggestOption> => {
         return this.databaseOptions.map((databaseOption: DatabaseOption) => {
             return {
                 label: databaseOption.databaseName || '',
@@ -273,22 +270,20 @@ export default class SqlSnippets {
         })
     }
 
+
     /**
-     * 获取关键字联想建议
-     * @param {*} keyword
+     * 获取数据库关键字联想建议
+     * @returns { Array<SuggestOption> } []
      */
-    getKeywordOptionsSuggestions = (): Array<SuggestOption> => {
-        return this.databaseKeywords.map((databaseKeyword: string) => ({
-            label: databaseKeyword,
-            kind: this.monaco.languages.CompletionItemKind.Keyword,
-            detail: '<关键字>',
-            sortText: this.sortText.Keyword,
-            // Fix插入两个$符号
-            insertText: databaseKeyword.startsWith('$')
-                ? databaseKeyword.slice(1)
-                : databaseKeyword,
-        }))
-    }
+    getKeywordOptionsSuggestions = (): Array<SuggestOption> => this.databaseKeywords.map((databaseKeyword: string) => ({
+        label: databaseKeyword,
+        kind: this.monaco.languages.CompletionItemKind.Keyword,
+        detail: '<关键字>',
+        sortText: this.sortText.Keyword,
+        insertText: databaseKeyword.startsWith('$')
+            ? databaseKeyword.slice(1)
+            : databaseKeyword,
+    }))
 
     /**
      * 获取数据库表名建议
@@ -310,6 +305,7 @@ export default class SqlSnippets {
         })
         return suggestOptions
     }
+
     /**
      * 通过数据库名 来获取 当前数据库下面的 table 联想选项
      * @param { string } databaseName 
@@ -317,7 +313,8 @@ export default class SqlSnippets {
      */
     getTableOptionsSuggestByDatabaseName = (databaseName: string): Array<SuggestOption> => {
         // 从当前输入的数据库当中获取 所有的数据
-        const currentDatabase = this.databaseOptions.find((databaseOption: DatabaseOption) => databaseOption.databaseName === databaseName)
+        const currentDatabase = this.databaseOptions.find((databaseOption: DatabaseOption) => databaseOption.databaseName.toLowerCase() === databaseName)
+        console.log("currentDatabase", currentDatabase, databaseName);
         return currentDatabase ? currentDatabase.tableOptions.map((tableOption: TableOption) => ({
             label: tableOption.tableName || '',
             kind: this.monaco.languages.CompletionItemKind.Struct,

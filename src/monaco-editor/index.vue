@@ -135,7 +135,6 @@ export default defineComponent({
         props.databaseOptions,
       )
 
-
       completionItemProvider.value = monaco.languages.registerCompletionItemProvider('sql', {
         // 提示的触发字符
         triggerCharacters: [' ', '.', ...props.triggerCharacters],
@@ -150,6 +149,7 @@ export default defineComponent({
 
       // 监听编译器里面的值的变化
       monacoEditor.value.onDidChangeModelContent(() => { emit("update:modelValue", toRaw(monacoEditor.value!).getValue()) })
+
     }
 
     onMounted(() => {

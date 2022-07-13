@@ -1,5 +1,5 @@
 import progress from 'rollup-plugin-progress';
-import json from "rollup-plugin-json"
+import json from "@rollup/plugin-json"
 import postcss from 'rollup-plugin-postcss'
 import vue from '@vitejs/plugin-vue'
 import {
@@ -40,18 +40,18 @@ const initConfig = () => {
                     'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
                 },
             },
-            {
-                file: 'dist/monaco-editor.esm.js',
-                format: 'esm',
-                name: "MonacoEditor",
-                globals: {
-                    "vue": 'vue',
-                    'monaco-editor': 'monaco-editor',
-                    "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
-                    "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
-                    'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
-                },
-            }
+            // {
+            //     file: 'dist/monaco-editor.esm.js',
+            //     format: 'esm',
+            //     name: "MonacoEditor",
+            //     globals: {
+            //         "vue": 'vue',
+            //         'monaco-editor': 'monaco-editor',
+            //         "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
+            //         "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
+            //         'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
+            //     },
+            // }
         ],
         plugins: [
             del({
@@ -59,10 +59,10 @@ const initConfig = () => {
             }),
 
             nodeResolve({
-                // mainField: ['jsnext:main', 'browser', 'module', 'main'],
-                // browser: true,
-                dedupe: ['vue'], // 解决 npm link 造成多个 版本vue的问题
-                extensions: [".ts", ".js"] // 解决在.vue文件里面引用ts文件 找不到的问题
+                // dedupe: ['vue'], // 解决 npm link 造成多个 版本vue的问题
+
+                browser: true,
+                extensions: ['.jsx', '.js', '.ts', '.tsx'] // 解决在.vue文件里面引用ts文件 找不到的问题
             }),
 
             vue(),
