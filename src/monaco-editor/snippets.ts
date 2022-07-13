@@ -37,7 +37,6 @@ export default class SqlSnippets {
             ...this.customKeywords
         ]
 
-
         // 记录数据库选项
         this.databaseOptions = databaseOptions || []
 

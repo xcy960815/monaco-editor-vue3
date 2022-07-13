@@ -93,9 +93,10 @@ const initConfig = () => {
             }),
 
             babel({
-                skipPreflightCheck: true,
+                // skipPreflightCheck: true,
                 exclude: 'node_modules/**',
-                babelHelpers: 'runtime',
+                // babelHelpers: 'runtime',
+                babelHelpers: "bundled",
                 // babel 默认不支持 ts 需要手动添加
                 extensions: [...DEFAULT_EXTENSIONS, '.ts', '.tsx', '.vue']
             }),

@@ -11,10 +11,6 @@
     "link": "npm link && npm link vue3-monaco-editor",
     "serve": "vue-cli-service serve"
   },
-  "peerDependencies": {
-    "monaco-editor": "^0.27.0",
-    "vue": "^3.2.13"
-  },
   "keywords": [
     "vue3",
     "sql",
@@ -25,6 +21,10 @@
   "author": {
     "name": "xuchongyu",
     "email": "18763006837@163.com"
+  },
+  "peerDependencies": {
+    "monaco-editor": "^0.27.0",
+    "vue": "^3.2.13"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
