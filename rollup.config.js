@@ -40,22 +40,23 @@ const initConfig = () => {
                     'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
                 },
             },
-            // {
-            //     file: 'dist/monaco-editor.esm.js',
-            //     format: 'esm',
-            //     name: "MonacoEditor",
-            //     globals: {
-            //         "vue": 'vue',
-            //         'monaco-editor': 'monaco-editor',
-            //         "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
-            //         "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
-            //         'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
-            //     },
-            // }
+            {
+                file: 'dist/monaco-editor.esm.js',
+                format: 'esm',
+                name: "MonacoEditor",
+                globals: {
+                    "vue": 'vue',
+                    'monaco-editor': 'monaco-editor',
+                    "monaco-editor/esm/vs/basic-languages/sql/sql.js": "monaco-editor/esm/vs/basic-languages/sql/sql.js",
+                    "monaco-editor/esm/vs/editor/contrib/find/findController": "monaco-editor/esm/vs/editor/contrib/find/findController",
+                    'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco-editor/esm/vs/editor/contrib/hover/hover'
+                },
+            }
         ],
         plugins: [
-            del({
-                targets: ['dist', "lib"]
+            // 发布线上的时候在使用 防止代码 冗余
+            !isDev && del({
+                targets: ['dist']
             }),
 
             nodeResolve({
@@ -110,9 +111,9 @@ const initConfig = () => {
             isDev && livereload(),
 
 
-            progress({
-                clearLine: false // default: true
-            })
+            // progress({
+            //     clearLine: false // default: true
+            // })
         ],
 
         context: "window", //屏蔽 'THIS_IS_UNDEFINED' 警告

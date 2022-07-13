@@ -3,7 +3,6 @@ import * as monaco from 'monaco-editor'
 import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption, Monaco } from "./type"
 
 import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/sql.js"
-
 export default class SqlSnippets {
 
     monaco: Monaco
@@ -65,6 +64,7 @@ export default class SqlSnippets {
      *  textAfterPointerMulti:光标后到最后一行 最后一列 所有的文本
      * }
      */
+    
     getTextByCursorPosition = (model: monaco.editor.ITextModel, position: monaco.Position): {
         textBeforePointer: string
         textBeforePointerMulti: string
@@ -81,7 +81,6 @@ export default class SqlSnippets {
             endLineNumber: lineNumber,
             endColumn: column,
         })
-
 
         // 光标前第一行到光标位置所有的文本
         const textBeforePointerMulti = model.getValueInRange({

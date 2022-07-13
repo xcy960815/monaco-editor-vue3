@@ -22,8 +22,6 @@ import { ref, reactive, onMounted } from "vue"
 import type { DatabaseOption, ThemeType } from "vue3-monaco-editor"
 
 
-console.log("MonacoEditor", MonacoEditor);
-
 // 编译器高度
 const monacaEditorHeight = ref<number>(300)
 

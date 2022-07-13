@@ -11,6 +11,7 @@ MonacoEditor.install = (app: App): void => {
     app.component(MonacoEditor.name, MonacoEditor);
 }
 
+
 export {
     TableOption,
     FieldOption,
@@ -22,5 +23,9 @@ export {
 }
 
 export default MonacoEditorComponent;
+
+
+
+
 
 

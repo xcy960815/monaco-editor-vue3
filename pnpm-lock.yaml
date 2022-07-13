@@ -18,7 +18,6 @@ specifiers:
   rollup-plugin-livereload: ^2.0.5
   rollup-plugin-postcss: ^4.0.2
   rollup-plugin-progress: ^1.1.2
-  rollup-plugin-serve: ^1.1.0
   rollup-plugin-sourcemaps: ^0.6.3
   rollup-plugin-terser: ^7.0.2
   rollup-plugin-typescript2: ^0.32.1
@@ -45,7 +44,6 @@ devDependencies:
   rollup-plugin-livereload: 2.0.5
   rollup-plugin-postcss: 4.0.2
   rollup-plugin-progress: 1.1.2
-  rollup-plugin-serve: 1.1.0
   rollup-plugin-sourcemaps: 0.6.3_rollup@2.75.7
   rollup-plugin-terser: 7.0.2_rollup@2.75.7
   rollup-plugin-typescript2: 0.32.1_mmuxwq3zvntxkafsac34e3uoca
@@ -3949,12 +3947,6 @@ packages:
     hasBin: true
     dev: true
 
-  /mime/3.0.0:
-    resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    dev: true
-
   /mimic-fn/1.2.0:
     resolution: {integrity: sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ==}
     engines: {node: '>=4'}
@@ -5346,13 +5338,6 @@ packages:
     resolution: {integrity: sha512-6ehSZOMTZdAlRpe45kf56BnIOsDYC2GKWhGlK/Dh/Ae/AMUneMDyKdiv9ZlRrW/HVc986frTZcc2Zka+oF6W7Q==}
     dependencies:
       chalk: 2.4.2
-    dev: true
-
-  /rollup-plugin-serve/1.1.0:
-    resolution: {integrity: sha512-pYkSsuA0/psKqhhictkJw1c2klya5b+LlCvipWqI9OE1aG2M97mRumZCbBlry5CMEOzYBBgSDgd1694sNbmyIw==}
-    dependencies:
-      mime: 3.0.0
-      opener: 1.5.2
     dev: true
 
   /rollup-plugin-sourcemaps/0.6.3_rollup@2.75.7:

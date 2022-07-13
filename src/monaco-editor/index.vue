@@ -72,7 +72,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
 
   setup(props, { emit }) {
-
+    
     // monacoEditor 挂载的dom节点
     const monacoEditorDom = ref<HTMLDivElement>()
 
