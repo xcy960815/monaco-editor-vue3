@@ -1,7 +1,8 @@
 import * as monaco from 'monaco-editor'
-
+// TODO 使用 @babel/parser、@babel/traverse 解析sql语句 生成ast树
 import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption, Monaco } from "./type"
-
+import parser from "@babel/parser"
+import traverse from "@babel/traverse"
 import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/sql.js"
 
 
@@ -17,6 +18,8 @@ export class SqlSnippets {
     databaseOptions: Array<DatabaseOption>
 
     sortText: SortText
+
+
 
     constructor(customKeywords?: Array<string>, databaseOptions?: Array<DatabaseOption>) {
 
@@ -66,7 +69,7 @@ export class SqlSnippets {
      *  textAfterPointerMulti:光标后到最后一行 最后一列 所有的文本
      * }
      */
-    
+
     getTextByCursorPosition = (model: monaco.editor.ITextModel, position: monaco.Position): {
         textBeforePointer: string
         textBeforePointerMulti: string
@@ -127,6 +130,10 @@ export class SqlSnippets {
      * @param { monaco.Position } position
      */
     async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
+        // 
+        // const [parser, traverse] = await Promise.all([import("@babel/parser"), import("@babel/traverse")])
+        // console.log("parser", parser);
+
         // 获取光标周围的sql内容
         const {
             textBeforePointer,
@@ -141,6 +148,10 @@ export class SqlSnippets {
 
         // 获取光标当前行所有的sql 并且去掉前后空格
         const textBeforeTokens = textBeforePointer.trim().split(/\s+/)
+        // console.log("textBeforeTokens", textBeforeTokens[0]);
+
+        // console.log(parser(textBeforePointerMulti, { sourceType: "module" }));
+        // console.log(parser.parse(textBeforeTokens[0]));
 
         // 光标前最后一个字段
         const textBeforeLastToken = textBeforeTokens[textBeforeTokens.length - 1].toLowerCase()
@@ -314,7 +325,7 @@ export class SqlSnippets {
     getTableOptionsSuggestByDatabaseName = (databaseName: string): Array<SuggestOption> => {
         // 从当前输入的数据库当中获取 所有的数据
         const currentDatabase = this.databaseOptions.find((databaseOption: DatabaseOption) => databaseOption.databaseName.toLowerCase() === databaseName)
-        console.log("currentDatabase", currentDatabase, databaseName);
+        // console.log("currentDatabase", currentDatabase, databaseName);
         return currentDatabase ? currentDatabase.tableOptions.map((tableOption: TableOption) => ({
             label: tableOption.tableName || '',
             kind: this.monaco.languages.CompletionItemKind.Struct,
