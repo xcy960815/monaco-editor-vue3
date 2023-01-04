@@ -62,7 +62,6 @@ import { ref, reactive, onMounted } from "vue";
 import type { DatabaseOption, ThemeType } from "vue3-monaco-editor";
 // 编译器高度
 const monacaEditorHeight = ref<number>(300);
-console.log("MonacoEditor", MonacoEditor);
 
 // 测试sql
 const defaultSql = `select * from dual
