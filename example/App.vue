@@ -1,5 +1,42 @@
 <template>
+  <h2 align="center">monaco-editor for vue3</h2>
+  <el-form class="config-buttons" inline>
+    <el-form-item label="编译器高度">
+      <el-button @click="monacaEditorHeight += 100">
+        编译器 高度增加100px
+      </el-button>
+    </el-form-item>
+    <el-form-item label="编译器高度">
+      <el-button @click="monacaEditorHeight -= 100">
+        编译器 高度减少100px
+      </el-button>
+    </el-form-item>
+    <el-form-item label="编译器宽度">
+      <el-button @click="monacaEditorWidth += 100">
+        编译器 宽度增加100px
+      </el-button>
+    </el-form-item>
+    <el-form-item label="编译器宽度">
+      <el-button @click="monacaEditorWidth -= 100">
+        编译器 宽度减少100px
+      </el-button>
+    </el-form-item>
+    <el-form-item label="编译器主题">
+      <el-select v-model="monacoEditorTheme" placeholder="请选择编译器主题">
+        <el-option label="vs-dark" value="vs-dark"></el-option>
+        <el-option label="hc-black" value="hc-black"></el-option>
+        <el-option label="vs" value="vs"></el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="编译器特殊用法">
+      <el-button @click="dialogVisible = true">
+        通过dialog 弹出编辑器
+      </el-button>
+    </el-form-item>
+  </el-form>
+
   <MonacoEditor
+    :width="monacaEditorWidth"
     :height="monacaEditorHeight"
     v-model="defaultSql"
     :monacoEditorTheme="monacoEditorTheme"
@@ -7,32 +44,11 @@
     :databaseOptions="databaseOptionsState.databaseOptions"
   ></MonacoEditor>
 
-  <div class="config-buttons">
-    <el-button class="config-el-button" @click="monacaEditorHeight += 100">
-      编译器 高度增加100px
-    </el-button>
-    <el-button class="config-el-button" @click="monacaEditorHeight -= 100">
-      编译器 高度减少100px
-    </el-button>
-    <el-button class="config-el-button" @click="handleSetEditorTheme('vs')">
-      编译器 主题 vs
-    </el-button>
-    <el-button
-      class="config-el-button"
-      @click="handleSetEditorTheme('vs-dark')"
-    >
-      编译器 主题 vs-dark
-    </el-button>
-    <el-button
-      class="config-el-button"
-      @click="handleSetEditorTheme('hc-black')"
-    >
-      编译器 主题 hc-black
-    </el-button>
-    <el-button @click="dialogVisible = true"> 通过dialog 弹出编辑器 </el-button>
-  </div>
-
-  <el-dialog v-model="dialogVisible" title="Tips" width="30%">
+  <el-dialog
+    v-model="dialogVisible"
+    title="monaco-editor 在dialog中"
+    width="50%"
+  >
     <MonacoEditor
       ref="dialogMonacoEditor"
       :height="monacaEditorHeight"
@@ -53,26 +69,28 @@
 </template>
 
 <script lang="ts" setup>
-// 在单独的.vue文件里面引用 在setup语法糖引入的组件无需再conponents属性里面注册 直接使用就行了
 import MonacoEditor from "vue3-monaco-editor";
 
 import { ref, reactive, onMounted } from "vue";
 
 // DatabaseOption 自定义提示 数据库.表名.字段名的数据格式
-import type { DatabaseOption, ThemeType } from "vue3-monaco-editor";
+import type { DatabaseOption } from "vue3-monaco-editor";
 // 编译器高度
 const monacaEditorHeight = ref<number>(300);
 
+// 编译器宽度
+const monacaEditorWidth = ref<number>(500);
+
 // 测试sql
 const defaultSql = `select * from dual
-where name = "小明"
-limit 100
-
-select`;
+  where name = "小明"
+  limit 100`;
 
 // dialog sql
 const dialogSql = ``;
+
 const monacoEditor = ref<InstanceType<typeof MonacoEditor>>();
+
 // 自定义提示 (不建议使用 提示不够完整 后期加强)
 const customKeywords = ["test1", "test2"];
 
@@ -87,10 +105,6 @@ const databaseOptionsState = reactive<{
 });
 
 const dialogVisible = ref(false);
-
-// 变更编译器主题
-const handleSetEditorTheme = (theme: ThemeType) =>
-  (monacoEditorTheme.value = theme);
 
 // 给database mock数据
 const initDatabaseOptions = () => {
@@ -135,12 +149,4 @@ onMounted(() => {
 });
 </script>
 
-<style lang="less" scoped>
-.config-buttons {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  .config-el-button {
-    margin-right: 10px;
-  }
-}
-</style>
+<style lang="less" scoped></style>

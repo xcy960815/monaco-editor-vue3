@@ -1,5 +1,4 @@
 import * as monaco from 'monaco-editor'
-// TODO 使用 @babel/parser、@babel/traverse 解析sql语句 生成ast树
 import type { FieldOption, DatabaseOption, TableOption, SortText, SuggestOption, Monaco } from "./type"
 import parser from "@babel/parser"
 import traverse from "@babel/traverse"
@@ -8,18 +7,16 @@ import { language as Language } from "monaco-editor/esm/vs/basic-languages/sql/s
 
 export class SqlSnippets {
 
-    monaco: Monaco
+    private monaco: Monaco
 
     // 自定义关键字
-    customKeywords: Array<string>
+    private customKeywords: Array<string>
 
-    databaseKeywords: Array<string>
+    private databaseKeywords: Array<string>
 
-    databaseOptions: Array<DatabaseOption>
+    private databaseOptions: Array<DatabaseOption>
 
-    sortText: SortText
-
-
+    private sortText: SortText
 
     constructor(customKeywords?: Array<string>, databaseOptions?: Array<DatabaseOption>) {
 
@@ -32,7 +29,6 @@ export class SqlSnippets {
 
         // 记录自定义关键字
         this.customKeywords = customKeywords || []
-
         // 数据库关键字 将自定义关键字也柔和进去
         this.databaseKeywords = [
             ...Language.keywords,
@@ -40,11 +36,8 @@ export class SqlSnippets {
             ...Language.builtinFunctions,
             ...this.customKeywords
         ]
-
         // 记录数据库选项
         this.databaseOptions = databaseOptions || []
-
-        // editor 赋值
         this.monaco = monaco
 
     }
@@ -54,7 +47,7 @@ export class SqlSnippets {
      * @param {*} databaseOptions 数据库数据
      * @example [{ databaseName: '', tableOptions: [{ tableName: '', fielsOptions: [ {  fieldName: "" ,fieldType: "" ,fieldComment: "" ,databaseName: "" ,tableName: ""  }] }] }]
      */
-    setDatabaseOption(databaseOptions: Array<DatabaseOption>) {
+    private setDatabaseOption(databaseOptions: Array<DatabaseOption>): void {
         this.databaseOptions = databaseOptions
     }
 
@@ -130,9 +123,7 @@ export class SqlSnippets {
      * @param { monaco.Position } position
      */
     async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
-        // 
-        // const [parser, traverse] = await Promise.all([import("@babel/parser"), import("@babel/traverse")])
-        // console.log("parser", parser);
+        console.log("parser", parser);
 
         // 获取光标周围的sql内容
         const {
@@ -162,7 +153,6 @@ export class SqlSnippets {
             // 如果最后一个文本后面 包含. 判断这个点之前的内容是否是database 
             const textBeforeLastTokenNoDot = textBeforeLastToken.slice(0, textBeforeLastToken.length - 1)
 
-            debugger
             // 是否是数据库
             const databaseOption = this.databaseOptions.find(
                 (databaseOption: DatabaseOption) => databaseOption.databaseName.toLowerCase() === textBeforeLastTokenNoDot.replace(/^.*,/g, '')
@@ -221,7 +211,7 @@ export class SqlSnippets {
             }
 
         } else if (
-            ['select', 'where', 'order by', 'group by', 'by', 'and', 'or', 'having', 'distinct', 'on',].includes(textBeforeLastToken.replace(/.*?\(/g, '')) ||
+            ['select', 'where', 'order by', 'group by', 'by', 'and', 'or', 'having', 'distinct', 'on'].includes(textBeforeLastToken.replace(/.*?\(/g, '')) ||
             (textBeforeLastToken.endsWith('.') && !this.databaseOptions.find((databaseOption: DatabaseOption) => `${databaseOption.databaseName}.` === textBeforeLastToken)) ||
             /(select|where|order by|group by|by|and|or|having|distinct|on)\s+.*?\s?,\s*$/.test(textBeforePointer.toLowerCase())
         ) {
@@ -252,22 +242,21 @@ export class SqlSnippets {
     }
 
     /**
-     * 获取自定义联想建议
+     * @desc 获取自定义联想建议
      */
-    getCustomSuggestions(startsWith$: boolean): Array<SuggestOption> {
+    private getCustomSuggestions(startsWith$: boolean): Array<SuggestOption> {
         return this.customKeywords.map((customKeyword) => ({
             label: customKeyword,
             kind: this.monaco.languages.CompletionItemKind.Keyword,
             detail: '自定义联想',
             sortText: this.sortText.Keyword,
-            // Fix插入两个$符号
             insertText: startsWith$ ? customKeyword.slice(1) : customKeyword,
         }))
     }
 
 
     /**
-     * 获取数据库库名联想建议
+     * @desc 获取数据库库名联想建议
      */
     getDatabaseOptionsSuggestions = (): Array<SuggestOption> => {
         return this.databaseOptions.map((databaseOption: DatabaseOption) => {

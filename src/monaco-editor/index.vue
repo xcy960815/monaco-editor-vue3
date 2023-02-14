@@ -8,8 +8,8 @@ import * as monaco from "monaco-editor";
 import "monaco-editor/esm/vs/editor/contrib/find/findController";
 // sql 语法高亮
 import "monaco-editor/esm/vs/editor/contrib/hover/hover";
-// import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution'
-import type { PropType, Prop } from "vue";
+
+import type { PropType } from "vue";
 import {
   defineComponent,
   onBeforeUnmount,
@@ -26,7 +26,6 @@ export default defineComponent({
   name: "MonacoEditor",
 
   props: {
-    // sql 语句
     modelValue: {
       type: String,
       default: () => "",
@@ -78,17 +77,17 @@ export default defineComponent({
   emits: ["update:modelValue"],
 
   setup(props, { emit }) {
-    // monacoEditor 挂载的dom节点
     const monacoEditorDom = ref<HTMLDivElement>();
 
     // monacoEditor 实例
-    const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor>();
+    const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor>(null);
 
     const completionItemProvider = ref<monaco.IDisposable>();
 
     // 编译器的默认配置
     const monacoEditorDefaultOption: monaco.editor.IStandaloneEditorConstructionOptions =
       {
+        acceptSuggestionOnCommitCharacter: false,
         suggestSelection: "first",
         fontFamily: "MONACO",
         lineHeight: 30,
@@ -115,21 +114,13 @@ export default defineComponent({
         toRaw(monacoEditor.value)?.setValue(newSql);
       }
     );
-
-    // 监听编译器样式参数的变化 start
+    // 监听宽度高度
     watch(
-      () => props.height,
+      () => [props.height, props.width],
       () => {
         setMonacoEditorStyle();
       }
     );
-    watch(
-      () => props.width,
-      () => {
-        setMonacoEditorStyle();
-      }
-    );
-    // 监听编译器样式参数的变化 end
 
     // 监听 monaco-editor 主题
     watch(
@@ -175,13 +166,14 @@ export default defineComponent({
               position
             ) as monaco.languages.ProviderResult<monaco.languages.CompletionList>,
         });
-
+      const monacoEditorOption =
+        JSON.stringify(props.monacoEditorOption) === "{}"
+          ? monacoEditorDefaultOption
+          : props.monacoEditorOption;
       // 创建editor实例
       monacoEditor.value = monaco.editor.create(
         monacoEditorDom.value!,
-        JSON.stringify(props.monacoEditorOption) === "{}"
-          ? monacoEditorDefaultOption
-          : props.monacoEditorOption
+        monacoEditorOption
       );
       // 渲染 编译器 宽高
       if (props.height) setMonacoEditorStyle();
@@ -198,8 +190,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log(123);
-
       // 解决通过dialog 弹出的组件 无法正常渲染的问题
       nextTick(() => {
         initEditor();
