@@ -109,9 +109,8 @@ export default defineComponent({
     watch(
       () => props.modelValue,
       (newSql: string) => {
-        // const hasTextFocus = monacoEditor.value?.hasTextFocus()
-        // if (!hasTextFocus) toRaw(monacoEditor.value)?.setValue(newSql)
-        toRaw(monacoEditor.value)?.setValue(newSql);
+        const hasTextFocus = monacoEditor.value?.hasTextFocus();
+        if (!hasTextFocus) toRaw(monacoEditor.value)?.setValue(newSql);
       }
     );
     // 监听宽度高度
