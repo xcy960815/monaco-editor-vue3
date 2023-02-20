@@ -123,7 +123,7 @@ export class SqlSnippets {
      * @param { monaco.Position } position
      */
     async provideCompletionItems(model: monaco.editor.ITextModel, position: monaco.Position) {
-        console.log("parser", parser);
+        // console.log("parser", parser);
 
         // 获取光标周围的sql内容
         const {
