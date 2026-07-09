@@ -1,6 +1,6 @@
 {
   "name": "vue3-monaco-editor",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A lightweight Monaco Editor component library for Vue 3.",
   "main": "dist/vue3-monaco-editor.umd.js",
   "module": "dist/vue3-monaco-editor.es.js",
@@ -78,8 +78,8 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.4",
-    "@vue/compiler-sfc": "^3.5.17",
     "@vitejs/plugin-vue": "^5.1.4",
+    "@vue/compiler-sfc": "^3.5.17",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-vue": "^9.31.0",
