@@ -13,7 +13,7 @@
 - 内置 SQL 语言和关键字补全。
 - 支持通过类型化数据提供库、表、字段补全。
 - 支持自定义关键字补全。
-- 支持配置宽度、高度、主题和 Monaco 原生配置。
+- 支持配置宽度、高度、父容器尺寸变化监听、主题和 Monaco 原生配置。
 - 输出 ESM、UMD、压缩 UMD、CSS 和 TypeScript 声明文件。
 - 项目内置 Vite 示例、Rollup 构建、ESLint、Prettier、Husky 和 VitePress 文档。
 
@@ -98,16 +98,16 @@ const databaseOptions: DatabaseOption[] = [
 
 ### Props
 
-| 名称                 | 类型                                                 | 默认值 | 说明                                            |
-| -------------------- | ---------------------------------------------------- | ------ | ----------------------------------------------- |
-| `modelValue`         | `string`                                             | `''`   | 编辑器内容，用于 `v-model`。                    |
-| `triggerCharacters`  | `string[]`                                           | `[]`   | 额外触发补全的字符。空格和 `.` 已内置。         |
-| `customKeywords`     | `string[]`                                           | `[]`   | 自定义 SQL 关键字补全。                         |
-| `databaseOptions`    | `DatabaseOption[]`                                   | `[]`   | 用于补全的库、表、字段元数据。                  |
-| `width`              | `number`                                             | `0`    | 编辑器宽度，单位 px。为 `0` 时使用父元素宽度。  |
-| `height`             | `number`                                             | `100`  | 编辑器高度，单位 px。                           |
-| `monacoEditorOption` | `monaco.editor.IStandaloneEditorConstructionOptions` | `{}`   | Monaco 原生配置，会覆盖组件默认配置中的同名项。 |
-| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`                    | `'vs'` | Monaco 主题。                                   |
+| 名称                 | 类型                                                 | 默认值 | 说明                                                                         |
+| -------------------- | ---------------------------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| `modelValue`         | `string`                                             | `''`   | 编辑器内容，用于 `v-model`。                                                 |
+| `triggerCharacters`  | `string[]`                                           | `[]`   | 额外触发补全的字符。空格和 `.` 已内置。                                      |
+| `customKeywords`     | `string[]`                                           | `[]`   | 自定义 SQL 关键字补全。                                                      |
+| `databaseOptions`    | `DatabaseOption[]`                                   | `[]`   | 用于补全的库、表、字段元数据。                                               |
+| `width`              | `number \| string`                                   | `0`    | 编辑器宽度。数字表示 px；百分比基于父元素宽度计算。为 `0` 时使用父元素宽度。 |
+| `height`             | `number \| string`                                   | `100`  | 编辑器高度。数字表示 px；百分比基于父元素高度计算。                          |
+| `monacoEditorOption` | `monaco.editor.IStandaloneEditorConstructionOptions` | `{}`   | Monaco 原生配置，会覆盖组件默认配置中的同名项。                              |
+| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`                    | `'vs'` | Monaco 主题。                                                                |
 
 ### 事件
 
@@ -119,10 +119,14 @@ const databaseOptions: DatabaseOption[] = [
 
 可以通过组件 ref 调用：
 
-| 名称          | 类型         | 说明                                       |
-| ------------- | ------------ | ------------------------------------------ |
-| `initEditor`  | `() => void` | 初始化 Monaco 实例。组件挂载时会自动调用。 |
-| `resetEditor` | `() => void` | 清空编辑器内容。                           |
+| 名称                  | 类型                        | 说明                                       |
+| --------------------- | --------------------------- | ------------------------------------------ |
+| `initEditor`          | `() => void`                | 初始化 Monaco 实例。组件挂载时会自动调用。 |
+| `resetEditor`         | `() => void`                | 清空编辑器内容。                           |
+| `insertText`          | `(text: string) => void`    | 在当前光标位置插入文本。                   |
+| `getSelectedText`     | `() => string`              | 获取当前选中文本；未选中时返回空字符串。   |
+| `replaceSelectedText` | `(text: string) => boolean` | 替换当前选中文本，并返回是否替换成功。     |
+| `replaceText`         | `(text: string) => void`    | 替换编辑器全部内容。                       |
 
 ```vue
 <script setup lang="ts">

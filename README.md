@@ -13,7 +13,7 @@ A lightweight Vue 3 wrapper for [Monaco Editor](https://microsoft.github.io/mona
 - SQL language setup with keyword suggestions.
 - Database, table and field completion through typed data.
 - Custom keyword completion.
-- Configurable width, height, theme and native Monaco options.
+- Configurable width, height, parent resize handling, theme and native Monaco options.
 - ESM, UMD, minified UMD, CSS and TypeScript declaration output.
 - Vite demo, Rollup build, ESLint, Prettier, Husky and VitePress docs.
 
@@ -98,16 +98,16 @@ const databaseOptions: DatabaseOption[] = [
 
 ### Props
 
-| Name                 | Type                                                 | Default | Description                                                                       |
-| -------------------- | ---------------------------------------------------- | ------- | --------------------------------------------------------------------------------- |
-| `modelValue`         | `string`                                             | `''`    | Editor content, used by `v-model`.                                                |
-| `triggerCharacters`  | `string[]`                                           | `[]`    | Extra characters that trigger completion. Space and `.` are built in.             |
-| `customKeywords`     | `string[]`                                           | `[]`    | Extra SQL keyword suggestions.                                                    |
-| `databaseOptions`    | `DatabaseOption[]`                                   | `[]`    | Database, table and field metadata used for completion.                           |
-| `width`              | `number`                                             | `0`     | Editor width in pixels. When `0`, the parent element width is used.               |
-| `height`             | `number`                                             | `100`   | Editor height in pixels.                                                          |
-| `monacoEditorOption` | `monaco.editor.IStandaloneEditorConstructionOptions` | `{}`    | Native Monaco editor options. Values here are merged over the component defaults. |
-| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`                    | `'vs'`  | Monaco theme.                                                                     |
+| Name                 | Type                                                 | Default | Description                                                                                                              |
+| -------------------- | ---------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `modelValue`         | `string`                                             | `''`    | Editor content, used by `v-model`.                                                                                       |
+| `triggerCharacters`  | `string[]`                                           | `[]`    | Extra characters that trigger completion. Space and `.` are built in.                                                    |
+| `customKeywords`     | `string[]`                                           | `[]`    | Extra SQL keyword suggestions.                                                                                           |
+| `databaseOptions`    | `DatabaseOption[]`                                   | `[]`    | Database, table and field metadata used for completion.                                                                  |
+| `width`              | `number \| string`                                   | `0`     | Editor width. Numbers are pixels; percentages are based on the parent width. When `0`, the parent element width is used. |
+| `height`             | `number \| string`                                   | `100`   | Editor height. Numbers are pixels; percentages are based on the parent height.                                           |
+| `monacoEditorOption` | `monaco.editor.IStandaloneEditorConstructionOptions` | `{}`    | Native Monaco editor options. Values here are merged over the component defaults.                                        |
+| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`                    | `'vs'`  | Monaco theme.                                                                                                            |
 
 ### Events
 
@@ -119,10 +119,14 @@ const databaseOptions: DatabaseOption[] = [
 
 Use a component ref to call these methods:
 
-| Name          | Type         | Description                                                           |
-| ------------- | ------------ | --------------------------------------------------------------------- |
-| `initEditor`  | `() => void` | Initializes the Monaco instance. It is called automatically on mount. |
-| `resetEditor` | `() => void` | Clears the editor content.                                            |
+| Name                  | Type                        | Description                                                                 |
+| --------------------- | --------------------------- | --------------------------------------------------------------------------- |
+| `initEditor`          | `() => void`                | Initializes the Monaco instance. It is called automatically on mount.       |
+| `resetEditor`         | `() => void`                | Clears the editor content.                                                  |
+| `insertText`          | `(text: string) => void`    | Inserts text at the current cursor position.                                |
+| `getSelectedText`     | `() => string`              | Returns the current selection, or an empty string when nothing is selected. |
+| `replaceSelectedText` | `(text: string) => boolean` | Replaces the current selection and returns whether replacement happened.    |
+| `replaceText`         | `(text: string) => void`    | Replaces the full editor content.                                           |
 
 ```vue
 <script setup lang="ts">

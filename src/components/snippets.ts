@@ -116,10 +116,11 @@ export class SqlSnippets {
 
     if (textBeforeLastToken.endsWith('.')) {
       const textBeforeLastTokenNoDot = textBeforeLastToken.slice(0, -1)
-      const currentName = textBeforeLastTokenNoDot.replace(/^.*,/g, '')
+      const currentName = this.getLastCommaSegment(textBeforeLastTokenNoDot)
       const databaseOption = this.databaseOptions.find(
         (databaseOption: DatabaseOption) =>
-          databaseOption.databaseName.toLowerCase() === currentName,
+          this.normalizeIdentifier(databaseOption.databaseName) ===
+          this.normalizeIdentifier(currentName),
       )
 
       if (databaseOption) {
@@ -134,7 +135,9 @@ export class SqlSnippets {
         ] + textAfterPointerMulti.split(';')[0]
       const tableInfoList = this.getTableNameAndTableAlia(currentSqlText)
       const currentTable = tableInfoList.find(
-        (item) => item.tableAlia.toLowerCase() === currentName,
+        (item) =>
+          this.isSameIdentifier(item.tableAlia, currentName) ||
+          this.isSameTableName(item.tableName, currentName),
       )
 
       return {
@@ -219,7 +222,7 @@ export class SqlSnippets {
     const suggestOptions: Array<SuggestOption> = []
 
     this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
-      databaseOption.tableOptions.forEach((tableOption: TableOption) => {
+      databaseOption.tableOptions?.forEach((tableOption: TableOption) => {
         suggestOptions.push({
           label: tableOption.tableName || '',
           kind: this.monaco.languages.CompletionItemKind.Struct,
@@ -239,11 +242,11 @@ export class SqlSnippets {
   ): Array<SuggestOption> {
     const currentDatabase = this.databaseOptions.find(
       (databaseOption: DatabaseOption) =>
-        databaseOption.databaseName.toLowerCase() ===
-        databaseName.toLowerCase(),
+        this.normalizeIdentifier(databaseOption.databaseName) ===
+        this.normalizeIdentifier(databaseName),
     )
 
-    return currentDatabase
+    return currentDatabase?.tableOptions
       ? currentDatabase.tableOptions.map((tableOption: TableOption) => ({
           label: tableOption.tableName || '',
           kind: this.monaco.languages.CompletionItemKind.Struct,
@@ -259,7 +262,7 @@ export class SqlSnippets {
     const defaultFieldOptions: Array<SuggestOption> = []
 
     this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
-      databaseOption.tableOptions.forEach((tableOption: TableOption) => {
+      databaseOption.tableOptions?.forEach((tableOption: TableOption) => {
         tableOption.fieldOptions?.forEach((fieldOption: FieldOption) => {
           defaultFieldOptions.push(this.createFieldSuggestion(fieldOption))
         })
@@ -272,12 +275,19 @@ export class SqlSnippets {
   public getFieldOptionsSuggestByTableName(
     tableName: string,
   ): Array<SuggestOption> {
-    const normalizedTableName = tableName.toLowerCase().split('.').pop()
     const defaultFieldOptions: Array<SuggestOption> = []
 
     this.databaseOptions.forEach((databaseOption: DatabaseOption) => {
-      databaseOption.tableOptions.forEach((tableOption: TableOption) => {
-        if (tableOption.tableName.toLowerCase() !== normalizedTableName) return
+      databaseOption.tableOptions?.forEach((tableOption: TableOption) => {
+        if (
+          !this.isSameTableName(
+            tableOption.tableName,
+            tableName,
+            databaseOption.databaseName,
+          )
+        ) {
+          return
+        }
 
         tableOption.fieldOptions?.forEach((fieldOption: FieldOption) => {
           defaultFieldOptions.push(this.createFieldSuggestion(fieldOption))
@@ -336,6 +346,62 @@ export class SqlSnippets {
     })
 
     return tableList
+  }
+
+  private getLastCommaSegment(text: string): string {
+    return text.replace(/^.*,/g, '').trim()
+  }
+
+  private normalizeIdentifier(identifier: string): string {
+    return identifier
+      .trim()
+      .split('.')
+      .map((segment) =>
+        segment
+          .trim()
+          .replace(/^`(.+)`$/, '$1')
+          .replace(/^"(.+)"$/, '$1')
+          .replace(/^'(.+)'$/, '$1')
+          .replace(/^\[(.+)\]$/, '$1'),
+      )
+      .join('.')
+      .toLowerCase()
+  }
+
+  private getIdentifierBaseName(identifier: string): string {
+    return this.normalizeIdentifier(identifier).split('.').pop() || ''
+  }
+
+  private isSameIdentifier(left: string, right: string): boolean {
+    if (!left || !right) return false
+
+    return this.normalizeIdentifier(left) === this.normalizeIdentifier(right)
+  }
+
+  private isSameTableName(
+    left: string,
+    right: string,
+    databaseName?: string,
+  ): boolean {
+    if (!left || !right) return false
+
+    const normalizedLeft = this.normalizeIdentifier(left)
+    const normalizedRight = this.normalizeIdentifier(right)
+    const leftBaseName = this.getIdentifierBaseName(normalizedLeft)
+    const rightBaseName = this.getIdentifierBaseName(normalizedRight)
+
+    if (databaseName && normalizedRight.includes('.')) {
+      const normalizedQualifiedLeft = this.normalizeIdentifier(
+        `${databaseName}.${leftBaseName}`,
+      )
+
+      return (
+        normalizedLeft === normalizedRight ||
+        normalizedQualifiedLeft === normalizedRight
+      )
+    }
+
+    return normalizedLeft === normalizedRight || leftBaseName === rightBaseName
   }
 
   private createFieldSuggestion(fieldOption: FieldOption): SuggestOption {

@@ -19,8 +19,8 @@ export type MonacoEditorProps = {
   triggerCharacters?: string[]
   customKeywords?: string[]
   databaseOptions?: DatabaseOption[]
-  width?: number
-  height?: number
+  width?: number | string
+  height?: number | string
   monacoEditorOption?: monaco.editor.IStandaloneEditorConstructionOptions
   monacoEditorTheme?: ThemeType
 }
@@ -28,6 +28,10 @@ export type MonacoEditorProps = {
 export type MonacoEditorExpose = {
   initEditor: () => void
   resetEditor: () => void
+  insertText: (text: string) => void
+  getSelectedText: () => string
+  replaceSelectedText: (text: string) => boolean
+  replaceText: (text: string) => void
 }
 
 export type MonacoEditorComponent = DefineComponent<

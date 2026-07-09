@@ -2,16 +2,16 @@
 
 ## Props
 
-| 名称                 | 类型                                   | 默认值 | 说明                                  |
-| -------------------- | -------------------------------------- | ------ | ------------------------------------- |
-| `modelValue`         | `string`                               | `''`   | 编辑器内容。                          |
-| `triggerCharacters`  | `string[]`                             | `[]`   | 额外触发补全的字符。                  |
-| `customKeywords`     | `string[]`                             | `[]`   | 自定义 SQL 补全关键字。               |
-| `databaseOptions`    | `DatabaseOption[]`                     | `[]`   | 库、表、字段补全数据。                |
-| `width`              | `number`                               | `0`    | 编辑器宽度，为 `0` 时使用父容器宽度。 |
-| `height`             | `number`                               | `100`  | 编辑器高度。                          |
-| `monacoEditorOption` | `IStandaloneEditorConstructionOptions` | `{}`   | Monaco 原生配置。                     |
-| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`      | `'vs'` | Monaco 主题。                         |
+| 名称                 | 类型                                   | 默认值 | 说明                                                                         |
+| -------------------- | -------------------------------------- | ------ | ---------------------------------------------------------------------------- |
+| `modelValue`         | `string`                               | `''`   | 编辑器内容。                                                                 |
+| `triggerCharacters`  | `string[]`                             | `[]`   | 额外触发补全的字符。                                                         |
+| `customKeywords`     | `string[]`                             | `[]`   | 自定义 SQL 补全关键字。                                                      |
+| `databaseOptions`    | `DatabaseOption[]`                     | `[]`   | 库、表、字段补全数据。                                                       |
+| `width`              | `number \| string`                     | `0`    | 编辑器宽度。数字表示 px；百分比基于父容器宽度计算；为 `0` 时使用父容器宽度。 |
+| `height`             | `number \| string`                     | `100`  | 编辑器高度。数字表示 px；百分比基于父容器高度计算。                          |
+| `monacoEditorOption` | `IStandaloneEditorConstructionOptions` | `{}`   | Monaco 原生配置。                                                            |
+| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`      | `'vs'` | Monaco 主题。                                                                |
 
 ## 事件
 
@@ -21,7 +21,11 @@
 
 ## 暴露方法
 
-| 名称          | 说明               |
-| ------------- | ------------------ |
-| `initEditor`  | 初始化编辑器实例。 |
-| `resetEditor` | 清空编辑器内容。   |
+| 名称                  | 说明                 |
+| --------------------- | -------------------- |
+| `initEditor`          | 初始化编辑器实例。   |
+| `resetEditor`         | 清空编辑器内容。     |
+| `insertText`          | 在光标位置插入文本。 |
+| `getSelectedText`     | 获取当前选中文本。   |
+| `replaceSelectedText` | 替换当前选中文本。   |
+| `replaceText`         | 替换编辑器全部内容。 |

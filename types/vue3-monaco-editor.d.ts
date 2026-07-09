@@ -39,14 +39,18 @@ type MonacoEditorProps = {
     triggerCharacters?: string[];
     customKeywords?: string[];
     databaseOptions?: DatabaseOption[];
-    width?: number;
-    height?: number;
+    width?: number | string;
+    height?: number | string;
     monacoEditorOption?: monaco.editor.IStandaloneEditorConstructionOptions;
     monacoEditorTheme?: ThemeType;
 };
 type MonacoEditorExpose = {
     initEditor: () => void;
     resetEditor: () => void;
+    insertText: (text: string) => void;
+    getSelectedText: () => string;
+    replaceSelectedText: (text: string) => boolean;
+    replaceText: (text: string) => void;
 };
 type MonacoEditorComponent = DefineComponent<MonacoEditorProps, MonacoEditorExpose>;
 declare const MonacoEditor: MonacoEditorComponent;

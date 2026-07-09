@@ -7,10 +7,12 @@ import {
   PropType,
   defineComponent,
   h,
+  markRaw,
   nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
+  shallowRef,
   toRaw,
   watch,
 } from 'vue'
@@ -38,11 +40,11 @@ export const MonacoEditor = defineComponent({
       default: () => [],
     },
     width: {
-      type: Number,
+      type: [Number, String] as PropType<number | string>,
       default: 0,
     },
     height: {
-      type: Number,
+      type: [Number, String] as PropType<number | string>,
       default: 100,
     },
     monacoEditorOption: {
@@ -57,9 +59,12 @@ export const MonacoEditor = defineComponent({
   emits: ['update:modelValue'],
   setup(props, { emit, expose }) {
     const monacoEditorDom = ref<HTMLDivElement | null>(null)
-    const monacoEditor = ref<monaco.editor.IStandaloneCodeEditor | null>(null)
-    const completionItemProvider = ref<monaco.IDisposable | null>(null)
-    const sqlSnippets = ref<SqlSnippets | null>(null)
+    const monacoEditor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(
+      null,
+    )
+    const completionItemProvider = shallowRef<monaco.IDisposable | null>(null)
+    const sqlSnippets = shallowRef<SqlSnippets | null>(null)
+    const resizeObserver = shallowRef<ResizeObserver | null>(null)
 
     const createDefaultEditorOption =
       (): monaco.editor.IStandaloneEditorConstructionOptions => ({
@@ -89,21 +94,80 @@ export const MonacoEditor = defineComponent({
         theme: props.monacoEditorOption.theme ?? props.monacoEditorTheme,
       })
 
+    const getEditorSize = (
+      size: number | string,
+      parentSize: number,
+      fallbackSize: number,
+      useFallbackWhenZero = false,
+    ): number => {
+      if (typeof size === 'number') {
+        return useFallbackWhenZero && size === 0 ? fallbackSize : size
+      }
+
+      const normalizedSize = size.trim()
+
+      if (normalizedSize.endsWith('%')) {
+        const percentValue = Number.parseFloat(normalizedSize)
+
+        return Number.isFinite(percentValue) && parentSize
+          ? (parentSize * percentValue) / 100
+          : fallbackSize
+      }
+
+      const pixelValue = Number.parseFloat(normalizedSize)
+
+      return Number.isFinite(pixelValue) ? pixelValue : fallbackSize
+    }
+
     const setMonacoEditorStyle = (): void => {
       if (!monacoEditorDom.value || !monacoEditor.value) return
 
       const parentElement = monacoEditorDom.value.parentElement
-      const parentElementWidth = parentElement
-        ? Number.parseFloat(window.getComputedStyle(parentElement).width)
-        : monacoEditorDom.value.clientWidth
+      const parentElementRect = parentElement?.getBoundingClientRect()
+      const parentElementWidth =
+        parentElementRect?.width || monacoEditorDom.value.clientWidth
+      const parentElementHeight =
+        parentElementRect?.height || monacoEditorDom.value.clientHeight
 
       toRaw(monacoEditor.value).layout({
-        width:
-          props.width ||
-          parentElementWidth ||
-          monacoEditorDom.value.clientWidth,
-        height: props.height,
+        width: getEditorSize(
+          props.width,
+          parentElementWidth || monacoEditorDom.value.clientWidth,
+          parentElementWidth || monacoEditorDom.value.clientWidth,
+          true,
+        ),
+        height: getEditorSize(
+          props.height,
+          parentElementHeight,
+          typeof props.height === 'number'
+            ? props.height
+            : parentElementHeight || monacoEditorDom.value.clientHeight || 100,
+        ),
       })
+    }
+
+    const shouldObserveParentSize = (): boolean =>
+      props.width === 0 ||
+      typeof props.width === 'string' ||
+      typeof props.height === 'string'
+
+    const initResizeObserver = (): void => {
+      resizeObserver.value?.disconnect()
+      resizeObserver.value = null
+
+      if (!shouldObserveParentSize() || typeof ResizeObserver === 'undefined') {
+        return
+      }
+
+      const parentElement = monacoEditorDom.value?.parentElement
+      if (!parentElement) return
+
+      resizeObserver.value = markRaw(
+        new ResizeObserver(() => {
+          setMonacoEditorStyle()
+        }),
+      )
+      resizeObserver.value.observe(parentElement)
     }
 
     const initEditor = (): void => {
@@ -113,7 +177,7 @@ export const MonacoEditor = defineComponent({
         props.customKeywords,
         props.databaseOptions,
       )
-      completionItemProvider.value =
+      completionItemProvider.value = markRaw(
         monaco.languages.registerCompletionItemProvider('sql', {
           triggerCharacters: [' ', '.', ...props.triggerCharacters],
           provideCompletionItems: (
@@ -124,11 +188,11 @@ export const MonacoEditor = defineComponent({
               model,
               position,
             ) as monaco.languages.ProviderResult<monaco.languages.CompletionList>,
-        })
+        }),
+      )
 
-      monacoEditor.value = monaco.editor.create(
-        monacoEditorDom.value,
-        getEditorOption(),
+      monacoEditor.value = markRaw(
+        monaco.editor.create(monacoEditorDom.value, getEditorOption()),
       )
       setMonacoEditorStyle()
 
@@ -141,6 +205,80 @@ export const MonacoEditor = defineComponent({
 
     const resetEditor = (): void => {
       toRaw(monacoEditor.value)?.setValue('')
+    }
+
+    const insertText = (text: string): void => {
+      if (!monacoEditor.value) return
+
+      const editor = toRaw(monacoEditor.value)
+      const position = editor.getPosition()
+      if (!position) return
+
+      editor.executeEdits('', [
+        {
+          range: new monaco.Range(
+            position.lineNumber,
+            position.column,
+            position.lineNumber,
+            position.column,
+          ),
+          text,
+          forceMoveMarkers: true,
+        },
+      ])
+      editor.focus()
+    }
+
+    const getSelectedText = (): string => {
+      if (!monacoEditor.value) return ''
+
+      const editor = toRaw(monacoEditor.value)
+      const selection = editor.getSelection()
+      const model = editor.getModel()
+
+      if (!selection || selection.isEmpty() || !model) return ''
+
+      return model.getValueInRange(selection)
+    }
+
+    const replaceSelectedText = (text: string): boolean => {
+      if (!monacoEditor.value) return false
+
+      const editor = toRaw(monacoEditor.value)
+      const selection = editor.getSelection()
+      if (!selection || selection.isEmpty()) return false
+
+      editor.pushUndoStop()
+      editor.executeEdits('', [
+        {
+          range: selection,
+          text,
+          forceMoveMarkers: true,
+        },
+      ])
+      editor.pushUndoStop()
+      editor.focus()
+
+      return true
+    }
+
+    const replaceText = (text: string): void => {
+      if (!monacoEditor.value) return
+
+      const editor = toRaw(monacoEditor.value)
+      const model = editor.getModel()
+      if (!model) return
+
+      editor.pushUndoStop()
+      editor.executeEdits('', [
+        {
+          range: model.getFullModelRange(),
+          text,
+          forceMoveMarkers: true,
+        },
+      ])
+      editor.pushUndoStop()
+      editor.focus()
     }
 
     watch(
@@ -161,6 +299,7 @@ export const MonacoEditor = defineComponent({
       () => [props.height, props.width],
       () => {
         setMonacoEditorStyle()
+        initResizeObserver()
       },
     )
 
@@ -187,17 +326,27 @@ export const MonacoEditor = defineComponent({
     onMounted(() => {
       nextTick(() => {
         initEditor()
+        initResizeObserver()
       })
     })
 
     onBeforeUnmount(() => {
       completionItemProvider.value?.dispose()
+      resizeObserver.value?.disconnect()
       toRaw(monacoEditor.value)?.dispose()
+      completionItemProvider.value = null
+      resizeObserver.value = null
+      monacoEditor.value = null
+      sqlSnippets.value = null
     })
 
     expose({
       initEditor,
       resetEditor,
+      insertText,
+      getSelectedText,
+      replaceSelectedText,
+      replaceText,
     })
 
     return () =>
