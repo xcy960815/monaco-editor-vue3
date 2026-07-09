@@ -2,6 +2,8 @@
 
 [中文文档](./README.zh-CN.md)
 
+[Online Docs](https://xcy960815.github.io/monaco-editor-vue3/) · [Online Demo](https://xcy960815.github.io/monaco-editor-vue3/guide/demo)
+
 A lightweight Vue 3 wrapper for [Monaco Editor](https://microsoft.github.io/monaco-editor/), focused on SQL editing scenarios. It ships a typed component, `v-model` support, theme switching, layout controls, and completion data for SQL keywords, databases, tables, fields and custom keywords.
 
 ## Features

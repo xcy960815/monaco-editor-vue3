@@ -2,6 +2,8 @@
 
 [English](./README.md)
 
+[在线文档](https://xcy960815.github.io/monaco-editor-vue3/zh-CN/) · [在线演示](https://xcy960815.github.io/monaco-editor-vue3/zh-CN/guide/demo)
+
 一个面向 SQL 编辑场景的轻量 Vue 3 Monaco Editor 组件库。它提供类型完善的组件导出、`v-model` 双向绑定、主题切换、尺寸控制，以及 SQL 关键字、库、表、字段和自定义关键字补全。
 
 ## 特性
