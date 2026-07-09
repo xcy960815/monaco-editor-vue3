@@ -1,21 +1,39 @@
-# vue3-monaco-editor
+---
+layout: home
 
-A lightweight Monaco Editor component library for Vue 3.
+hero:
+  name: vue3-monaco-editor
+  text: Monaco Editor for Vue 3
+  tagline: A typed Vue 3 component for SQL editing, Monaco configuration, v-model binding, and database/table/field completion.
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /guide/install
+    - theme: alt
+      text: Try Demo
+      link: /guide/demo
 
-## Features
+features:
+  - title: Vue 3 Component
+    details: Use it as a plugin or import the component directly in Vue 3 applications.
+  - title: SQL Completion
+    details: Suggest keywords, databases, tables, fields, aliases, and custom keywords from typed metadata.
+  - title: Modern Package
+    details: Ships ESM, UMD, CSS, TypeScript declarations, Vite demo, Rollup build, and GitHub Pages docs.
+---
 
-- Vue 3 component and plugin installation.
-- `v-model` binding for editor content.
-- SQL language completion for keywords, databases, tables and fields.
-- Theme, width, height and Monaco option configuration.
+## Why This Library
 
-## Quick Start
+`vue3-monaco-editor` is built for projects that need a small, typed Monaco wrapper for SQL editing:
 
-```shell
-pnpm add vue3-monaco-editor monaco-editor
-```
+- bind editor content with `v-model`
+- switch Monaco themes from Vue props
+- resize with width and height props
+- pass native Monaco editor options when needed
+- feed database metadata into SQL completion
 
-```ts
-import MonacoEditor from 'vue3-monaco-editor'
-import 'vue3-monaco-editor/style.css'
-```
+## Next Steps
+
+- [Install and quick start](/guide/install)
+- [API reference](/guide/api)
+- [Online demo](/guide/demo)

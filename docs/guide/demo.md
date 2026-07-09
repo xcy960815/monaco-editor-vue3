@@ -1,14 +1,9 @@
-# Demo
+# Online Demo
 
-```vue
-<template>
-  <MonacoEditor v-model="sql" :height="320" monaco-editor-theme="vs-dark" />
-</template>
+Use the playground below to test SQL editing, theme switching, layout controls, `v-model` binding, and database/table/field completion.
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { MonacoEditor } from 'vue3-monaco-editor'
-
-const sql = ref('select * from databaseName1.tableName1')
-</script>
-```
+<ClientOnly>
+  <div class="demo-doc-block">
+    <AppDemo />
+  </div>
+</ClientOnly>

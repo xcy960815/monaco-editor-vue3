@@ -2,4 +2,5 @@ dist
 node_modules
 types
 temp
+docs/.vitepress/dist
 .husky

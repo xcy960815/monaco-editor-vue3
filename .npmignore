@@ -17,3 +17,4 @@ tsconfig.json
 tsconfig.rollup.json
 vite.config.mts
 public/
+docs/.vitepress/dist/

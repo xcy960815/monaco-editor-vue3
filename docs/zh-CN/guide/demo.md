@@ -1,14 +1,9 @@
-# 示例
+# 在线演示
 
-```vue
-<template>
-  <MonacoEditor v-model="sql" :height="320" monaco-editor-theme="vs-dark" />
-</template>
+你可以在下面的演示区测试 SQL 编辑、主题切换、尺寸控制、`v-model` 绑定，以及库、表、字段补全。
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { MonacoEditor } from 'vue3-monaco-editor'
-
-const sql = ref('select * from databaseName1.tableName1')
-</script>
-```
+<ClientOnly>
+  <div class="demo-doc-block">
+    <AppDemo />
+  </div>
+</ClientOnly>

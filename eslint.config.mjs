@@ -12,7 +12,13 @@ const sharedGlobals = {
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'types/**', '.husky/**'],
+    ignores: [
+      'dist/**',
+      'docs/.vitepress/dist/**',
+      'node_modules/**',
+      'types/**',
+      '.husky/**',
+    ],
   },
   {
     ...js.configs.recommended,
