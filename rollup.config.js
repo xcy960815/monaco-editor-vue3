@@ -1,138 +1,101 @@
-// import progress from "rollup-plugin-progress";
-import json from "@rollup/plugin-json";
-import postcss from "rollup-plugin-postcss";
-import vue from "@vitejs/plugin-vue";
-import { terser } from "rollup-plugin-terser";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import typescript2 from "rollup-plugin-typescript2";
-import babel from "@rollup/plugin-babel";
-import commonjs from "@rollup/plugin-commonjs";
-import { DEFAULT_EXTENSIONS } from "@babel/core";
-import livereload from "rollup-plugin-livereload";
-import del from "rollup-plugin-delete";
+const fs = require('fs')
+const path = require('path')
+const commonjs = require('@rollup/plugin-commonjs')
+const resolve = require('@rollup/plugin-node-resolve')
+const postcss = require('rollup-plugin-postcss')
+const typescript = require('@rollup/plugin-typescript')
+const { dts } = require('rollup-plugin-dts')
+const terser = require('@rollup/plugin-terser')
 
-// 判断是不是 生产环境
-const isDev = process.env.NODE_ENV !== "production";
+const input = path.resolve(__dirname, 'src/components/index.ts')
+const distDir = path.resolve(__dirname, 'dist')
+const typesDir = path.resolve(__dirname, 'types')
+const tempDir = path.join(distDir, 'temp')
+const tempTypesInput = path.join(tempDir, 'components/index.d.ts')
+const external = [
+  'vue',
+  'monaco-editor',
+  'monaco-editor/esm/vs/basic-languages/sql/sql.js',
+  'monaco-editor/esm/vs/editor/contrib/find/findController',
+  'monaco-editor/esm/vs/editor/contrib/hover/hover',
+]
 
-// 初始化配置
-const initConfig = () => {
-  return {
-    input: "src/monaco-editor/index.ts",
+fs.rmSync(distDir, { recursive: true, force: true })
+fs.rmSync(typesDir, { recursive: true, force: true })
+fs.rmSync(tempDir, { recursive: true, force: true })
+fs.mkdirSync(distDir, { recursive: true })
+fs.mkdirSync(typesDir, { recursive: true })
+
+module.exports = [
+  {
+    input,
+    external,
     output: [
       {
-        file: "dist/monaco-editor.umd.js",
-        format: "umd",
-        exports: "named", // 关闭   Mixing named and default exports  警告
-        name: "MonacoEditor",
-        globals: {
-          vue: "vue",
-          "monaco-editor": "monaco-editor",
-          "monaco-editor/esm/vs/basic-languages/sql/sql.js":
-            "monaco-editor/esm/vs/basic-languages/sql/sql.js",
-          "monaco-editor/esm/vs/editor/contrib/find/findController":
-            "monaco-editor/esm/vs/editor/contrib/find/findController",
-          "monaco-editor/esm/vs/editor/contrib/hover/hover":
-            "monaco-editor/esm/vs/editor/contrib/hover/hover",
-        },
-        inlineDynamicImports: true,
+        file: path.join(distDir, 'vue3-monaco-editor.es.js'),
+        format: 'es',
       },
       {
-        file: "dist/monaco-editor.esm.js",
-        format: "esm",
-        name: "MonacoEditor",
+        file: path.join(distDir, 'vue3-monaco-editor.umd.js'),
+        format: 'umd',
+        exports: 'named',
+        name: 'Vue3MonacoEditor',
         globals: {
-          vue: "vue",
-          "monaco-editor": "monaco-editor",
-          "monaco-editor/esm/vs/basic-languages/sql/sql.js":
-            "monaco-editor/esm/vs/basic-languages/sql/sql.js",
-          "monaco-editor/esm/vs/editor/contrib/find/findController":
-            "monaco-editor/esm/vs/editor/contrib/find/findController",
-          "monaco-editor/esm/vs/editor/contrib/hover/hover":
-            "monaco-editor/esm/vs/editor/contrib/hover/hover",
+          vue: 'Vue',
+          'monaco-editor': 'monaco',
+          'monaco-editor/esm/vs/basic-languages/sql/sql.js': 'monaco',
+          'monaco-editor/esm/vs/editor/contrib/find/findController': 'monaco',
+          'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco',
         },
+      },
+      {
+        file: path.join(distDir, 'vue3-monaco-editor.umd.min.js'),
+        format: 'umd',
+        exports: 'named',
+        name: 'Vue3MonacoEditor',
+        globals: {
+          vue: 'Vue',
+          'monaco-editor': 'monaco',
+          'monaco-editor/esm/vs/basic-languages/sql/sql.js': 'monaco',
+          'monaco-editor/esm/vs/editor/contrib/find/findController': 'monaco',
+          'monaco-editor/esm/vs/editor/contrib/hover/hover': 'monaco',
+        },
+        plugins: [terser()],
       },
     ],
     plugins: [
-      // 发布线上的时候在使用 防止代码 冗余
-      !isDev &&
-        del({
-          targets: ["dist"],
-        }),
-
-      nodeResolve({
-        // dedupe: ['vue'], // 解决 npm link 造成多个 版本vue的问题
-
-        browser: true,
-        extensions: [".jsx", ".js", ".ts", ".tsx"], // 解决在.vue文件里面引用ts文件 找不到的问题
+      resolve.nodeResolve({
+        extensions: ['.mjs', '.js', '.json', '.ts'],
       }),
-
-      vue(),
-
-      typescript2({
-        // 将根目录的tsconfig.json作为配置文件
-        useTsconfigDeclarationDir: true,
-      }),
-
       commonjs(),
-
-      json(),
-
       postcss({
-        plugins: [require("autoprefixer")],
-        // 把 css 插入到 style 中
-        inject: true,
-        // 把 css 放到和js同一目录
-        // extract: true
-        // Minimize CSS, boolean or options for cssnano.
-        minimize: !isDev,
-        // Enable sourceMap.
-        sourceMap: isDev,
-        // This plugin will process files ending with these extensions and the extensions supported by custom loaders.
-        extensions: [".sass", ".less", ".scss", ".css"],
+        extract: path.join(distDir, 'vue3-monaco-editor.css'),
+        minimize: true,
       }),
-
-      babel({
-        // skipPreflightCheck: true,
-        exclude: "node_modules/**",
-        // babelHelpers: 'runtime',
-        babelHelpers: "bundled",
-        // babel 默认不支持 ts 需要手动添加
-        extensions: [...DEFAULT_EXTENSIONS, ".ts", ".tsx", ".vue"],
+      typescript({
+        tsconfig: './tsconfig.rollup.json',
       }),
-
-      // 如果不是开发环境，开启压缩
-      !isDev &&
-        terser({
-          toplevel: true,
-        }),
-
-      // 热更新
-      isDev && livereload(),
-
-      // progress({
-      //     clearLine: false // default: true
-      // })
     ],
-
-    context: "window", //屏蔽 'THIS_IS_UNDEFINED' 警告
-
-    // 屏蔽一些不需要的警告
-    // onwarn: function (warning) {
-    //     if (warning.code === 'THIS_IS_UNDEFINED' || warning.code === 'CIRCULAR_DEPENDENCY') {
-    //         return
-    //     }
-    //     console.error(`(!) ${warning.message}`)
-    // },
-
-    // external: Object.keys(require(path.resolve(__dirname, './package.json')).peerDependencies || {}),
-    external: [
-      "monaco-editor",
-      "vue",
-      "monaco-editor/esm/vs/basic-languages/sql/sql.js",
-      "monaco-editor/esm/vs/editor/contrib/find/findController",
-      "monaco-editor/esm/vs/editor/contrib/hover/hover",
+  },
+  {
+    input: tempTypesInput,
+    output: [
+      {
+        file: path.join(typesDir, 'vue3-monaco-editor.d.ts'),
+        format: 'es',
+      },
     ],
-  };
-};
-
-export default initConfig();
+    external: [/\.css$/, ...external],
+    plugins: [
+      dts({
+        tsconfig: './tsconfig.rollup.json',
+      }),
+      {
+        name: 'clean-temp-types',
+        closeBundle() {
+          fs.rmSync(tempDir, { recursive: true, force: true })
+        },
+      },
+    ],
+  },
+]

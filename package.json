@@ -1,15 +1,52 @@
 {
   "name": "vue3-monaco-editor",
   "version": "0.2.5",
-  "private": false,
-  "main": "dist/monaco-editor.umd.js",
-  "module": "dist/monaco-editor.esm.js",
-  "types": "types/vue3-monaco-editor.d.ts",
+  "description": "A lightweight Monaco Editor component library for Vue 3.",
+  "main": "dist/vue3-monaco-editor.umd.js",
+  "module": "dist/vue3-monaco-editor.es.js",
+  "style": "dist/vue3-monaco-editor.css",
+  "types": "./types/vue3-monaco-editor.d.ts",
+  "typings": "./types/vue3-monaco-editor.d.ts",
+  "files": [
+    "dist",
+    "types",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/vue3-monaco-editor.d.ts",
+      "import": "./dist/vue3-monaco-editor.es.js",
+      "default": "./dist/vue3-monaco-editor.umd.js"
+    },
+    "./style.css": "./dist/vue3-monaco-editor.css",
+    "./dist/vue3-monaco-editor.css": "./dist/vue3-monaco-editor.css"
+  },
   "scripts": {
-    "dev": "NODE_ENV=development rollup -c -w",
-    "build": "NODE_ENV=production rollup -c && api-extractor run && rm -rf ./temp",
+    "dev": "vite",
+    "build": "rollup -c",
+    "check": "vue-tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "link": "npm link && npm link vue3-monaco-editor",
-    "serve": "vue-cli-service serve"
+    "prepare": "husky",
+    "preview": "vite preview",
+    "serve": "vite"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,less,html,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "keywords": [
     "vue3",
@@ -18,46 +55,53 @@
     "monaco-editor",
     "editor"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xcy960815/vue3-monaco-editor.git"
+  },
   "author": {
     "name": "xcy960815",
     "email": "18763006837@163.com"
   },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xcy960815/vue3-monaco-editor/issues"
+  },
+  "homepage": "https://github.com/xcy960815/vue3-monaco-editor#readme",
   "peerDependencies": {
     "monaco-editor": "^0.27.0",
     "vue": "^3.2.13"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.3",
-    "@babel/parser": "^7.19.1",
-    "@babel/plugin-transform-runtime": "^7.14.5",
-    "@babel/traverse": "^7.19.1",
-    "@microsoft/api-extractor": "^7.28.3",
-    "@rollup/plugin-babel": "^5.3.1",
-    "@rollup/plugin-commonjs": "^16.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^10.0.0",
-    "@vitejs/plugin-vue": "^2.3.3",
-    "@vue/cli-plugin-typescript": "~5.0.0",
-    "@vue/cli-service": "^5.0.8",
-    "autoprefixer": "^10.4.7",
-    "element-plus": "^2.2.26",
+    "@eslint/js": "^9.30.1",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@vue/compiler-sfc": "^3.5.17",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.31.0",
+    "globals": "^15.8.0",
+    "husky": "^9.1.4",
     "less": "^4.1.3",
-    "less-loader": "^11.0.0",
+    "lint-staged": "^15.2.7",
     "monaco-editor": "0.27.0",
-    "rollup": "^2.33.1",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup-plugin-livereload": "^2.0.5",
+    "prettier": "^3.3.3",
+    "rollup": "^4.44.1",
+    "rollup-plugin-dts": "^6.2.1",
     "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-progress": "^1.1.2",
-    "rollup-plugin-sourcemaps": "^0.6.3",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.32.1",
     "tslib": "^2.0.3",
-    "typescript": "~4.5.5",
-    "vite": "^2.9.13",
-    "vue": "3.2.25"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.35.1",
+    "vite": "^5.4.10",
+    "vitepress": "^1.3.4",
+    "vue": "^3.5.17",
+    "vue-eslint-parser": "^9.4.3",
+    "vue-tsc": "^2.1.8"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=18"
   }
 }

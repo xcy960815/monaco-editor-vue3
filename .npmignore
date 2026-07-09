@@ -1,29 +1,19 @@
+node_modules/
+.pnpm-store/
+example/
 .DS_Store
-node_modules
-/script
-/public
-/src
-/temp
-.browserslistrc
-package-lock.json
+src/
+temp/
+.idea/
+.gitignore
+.npmignore
+.npmrc
+index.html
+pnpm-lock.yaml
 rollup.config.js
-api-extractor.json
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+shims-vue.d.ts
+package-lock.json
+tsconfig.json
+tsconfig.rollup.json
+vite.config.mts
+public/

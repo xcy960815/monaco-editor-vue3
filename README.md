@@ -1,240 +1,233 @@
 # vue3-monaco-editor
 
-### monaco-editor for vue3
+[中文文档](./README.zh-CN.md)
 
-### 温馨提示
+A lightweight Vue 3 wrapper for [Monaco Editor](https://microsoft.github.io/monaco-editor/), focused on SQL editing scenarios. It ships a typed component, `v-model` support, theme switching, layout controls, and completion data for SQL keywords, databases, tables, fields and custom keywords.
 
-目前只是将微软的 monaco-editor 继承到了 vue3 里面 只是做了一些简单 sql 的展示以及数据数的双向绑定，还有部分的 sql 关键字提示，未来如果时间允许还有很多的功能要加
+## Features
 
-#### 安装
+- Vue 3 component and plugin installation.
+- `v-model` two-way binding for editor content.
+- SQL language setup with keyword suggestions.
+- Database, table and field completion through typed data.
+- Custom keyword completion.
+- Configurable width, height, theme and native Monaco options.
+- ESM, UMD, minified UMD, CSS and TypeScript declaration output.
+- Vite demo, Rollup build, ESLint, Prettier, Husky and VitePress docs.
+
+## Install
 
 ```shell
-npm install vue3-monaco-editor -S
+pnpm add vue3-monaco-editor monaco-editor
 ```
 
-#### 使用
+`vue` and `monaco-editor` are peer dependencies. Make sure both are installed in your application.
+
+## Quick Start
+
+Register globally:
 
 ```ts
-// main.ts
-import { createApp } from "vue";
-import App from "./App.vue";
-import MonacoEditor from "vue3-monaco-editor";
-const app = createApp(App);
-app.use(MonacoEditor);
-app.mount("#app");
+import { createApp } from 'vue'
+import MonacoEditor from 'vue3-monaco-editor'
+import 'vue3-monaco-editor/style.css'
+
+import App from './App.vue'
+
+createApp(App).use(MonacoEditor).mount('#app')
 ```
 
-OR
+Or import the component directly:
 
-```ts
-
-<script lang="ts" setup>
-// 在单独的.vue文件里面引用 在setup语法糖引入的组件无需再conponents属性里面注册 直接使用就行了
-import MonacoEditor from "vue3-monaco-editor"
-
-<script
-
-```
-
-OR
-
-```ts
-// 普通的vue3语法
-<script lang="ts">
-import MonacoEditor from "vue3-monaco-editor"
-import { defineComponent } from "vue"
-export default defineComponent({
-  components: { MonacoEditor },
- })
-<script
-
-```
-
-### .vue 文件里面的使用方法 以及 使用参数
-
-### template
-
-```html
+```vue
 <template>
   <MonacoEditor
-    :height="monacaEditorHeight"
-    v-model="defaultSql"
-    :monacoEditorTheme="monacoEditorTheme"
-    :customKeywords="customKeywords"
-    :databaseOptions="databaseOptionsState.databaseOptions"
-  >
-  </MonacoEditor>
-  <!-- 测试编辑器的其他属性 -->
-  <div style="margin-top:20px;margin-bottom: 20px;">
-    <button class="config-button" @click="monacaEditorHeight += 100">
-      编译器 高度增加100px
-    </button>
-    <button class="config-button" @click="monacaEditorHeight -= 100">
-      编译器 高度减少100px
-    </button>
-    <button class="config-button" @click="handleSetEditorTheme('vs')">
-      编译器 主题 vs
-    </button>
-    <button class="config-button" @click="handleSetEditorTheme('vs-dark')">
-      编译器 主题 vs-dark
-    </button>
-    <button class="config-button" @click="handleSetEditorTheme('hc-black')">
-      编译器 主题 hc-black
-    </button>
-  </div>
+    v-model="sql"
+    :height="320"
+    monaco-editor-theme="vs-dark"
+    :database-options="databaseOptions"
+    :custom-keywords="customKeywords"
+  />
 </template>
 
-<script lang="ts" setup>
-  // 在单独的.vue文件里面引用 在setup语法糖引入的组件无需再conponents属性里面注册 直接使用就行了
-  import MonacoEditor from "vue3-monaco-editor";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { MonacoEditor } from 'vue3-monaco-editor'
+import type { DatabaseOption } from 'vue3-monaco-editor'
+import 'vue3-monaco-editor/style.css'
 
-  import { ref, reactive, onMounted } from "vue";
-  // DatabaseOption 自定义提示 数据库.表名.字段名的数据格式
-  import type { DatabaseOption, ThemeType } from "vue3-monaco-editor";
+const sql = ref(`select *
+from databaseName1.tableName1 t
+where t.id = "1001"`)
 
-  // 编译器高度
-  const monacaEditorHeight = ref<number>(300);
+const customKeywords = ['warehouse', 'partition']
 
-  // 测试sql
-  const defaultSql = `select * from dual
-where name = "小明"
-limit 100
-
-select _name as name,_age as age from <database>.<table>`;
-
-  // 自定义提示 (不建议使用 提示不够完整 后期加强)
-  const customKeywords = ["test1", "test2"];
-
-  // 编译器主题
-  const monacoEditorTheme = ref("vs-dark");
-
-  // 模拟的数据库数据 包含 库名表明 (暂时不建议使用 后期会加强一下)
-  const databaseOptionsState = reactive<{
-    databaseOptions: Array<DatabaseOption>;
-  }>({
-    databaseOptions: [],
-  });
-
-  // 变更编译器主题
-  const handleSetEditorTheme = (theme: ThemeType) =>
-    (monacoEditorTheme.value = theme);
-
-  // 给database mock数据
-  const initDatabaseOptions = () => {
-    for (let index = 1; index <= 1000; index++) {
-      databaseOptionsState.databaseOptions.push({
-        databaseName: `databaseName${index}`,
-        tableOptions: [
+const databaseOptions: DatabaseOption[] = [
+  {
+    databaseName: 'databaseName1',
+    tableOptions: [
+      {
+        tableName: 'tableName1',
+        tableComment: 'Demo table',
+        fieldOptions: [
           {
-            tableName: `tableName1`,
-            tableComment: "tableComment1",
-            fieldOptions: [
-              {
-                fieldName: "fieldName1",
-                fieldComment: "fieldComment1",
-                fieldType: "string",
-                tableName: "tableName1",
-                databaseName: `databaseName${index}`,
-              },
-              {
-                fieldName: "fieldName2",
-                fieldComment: "fieldComment2",
-                fieldType: "string",
-                tableName: "tableName1",
-                databaseName: `databaseName${index}`,
-              },
-              {
-                fieldName: "fieldName3",
-                fieldComment: "fieldComment3",
-                fieldType: "string",
-                tableName: "tableName1",
-                databaseName: `databaseName${index}`,
-              },
-            ],
+            fieldName: 'id',
+            fieldType: 'string',
+            fieldComment: 'Primary key',
+            databaseName: 'databaseName1',
+            tableName: 'tableName1',
+          },
+          {
+            fieldName: 'created_at',
+            fieldType: 'datetime',
+            fieldComment: 'Creation time',
+            databaseName: 'databaseName1',
+            tableName: 'tableName1',
           },
         ],
-      });
-    }
-  };
-
-  onMounted(() => {
-    initDatabaseOptions();
-  });
+      },
+    ],
+  },
+]
 </script>
-
-<style scoped>
-  .config-button {
-    margin-right: 10px;
-  }
-</style>
 ```
+
+## API
+
+### Props
+
+| Name                 | Type                                                 | Default | Description                                                                       |
+| -------------------- | ---------------------------------------------------- | ------- | --------------------------------------------------------------------------------- |
+| `modelValue`         | `string`                                             | `''`    | Editor content, used by `v-model`.                                                |
+| `triggerCharacters`  | `string[]`                                           | `[]`    | Extra characters that trigger completion. Space and `.` are built in.             |
+| `customKeywords`     | `string[]`                                           | `[]`    | Extra SQL keyword suggestions.                                                    |
+| `databaseOptions`    | `DatabaseOption[]`                                   | `[]`    | Database, table and field metadata used for completion.                           |
+| `width`              | `number`                                             | `0`     | Editor width in pixels. When `0`, the parent element width is used.               |
+| `height`             | `number`                                             | `100`   | Editor height in pixels.                                                          |
+| `monacoEditorOption` | `monaco.editor.IStandaloneEditorConstructionOptions` | `{}`    | Native Monaco editor options. Values here are merged over the component defaults. |
+| `monacoEditorTheme`  | `'vs' \| 'vs-dark' \| 'hc-black'`                    | `'vs'`  | Monaco theme.                                                                     |
+
+### Events
+
+| Name                | Payload  | Description                              |
+| ------------------- | -------- | ---------------------------------------- |
+| `update:modelValue` | `string` | Emitted when the editor content changes. |
+
+### Exposed Methods
+
+Use a component ref to call these methods:
+
+| Name          | Type         | Description                                                           |
+| ------------- | ------------ | --------------------------------------------------------------------- |
+| `initEditor`  | `() => void` | Initializes the Monaco instance. It is called automatically on mount. |
+| `resetEditor` | `() => void` | Clears the editor content.                                            |
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { MonacoEditor } from 'vue3-monaco-editor'
+import type { MonacoEditorExpose } from 'vue3-monaco-editor'
+
+const editorRef = ref<MonacoEditorExpose | null>(null)
+
+const reset = () => {
+  editorRef.value?.resetEditor()
+}
+</script>
+```
+
+## Completion Data
 
 ```ts
-// 组件声明枚举 详见node_modules/vue3-monaco-editor/types/vue3-monaco-editor.d.ts 文件
-
-import * as monaco from "monaco-editor";
-
-export interface Monaco {
-  languages: typeof monaco.languages;
-}
-
-// 列选项
 export type FieldOption = {
-  fieldName: string; // 字段名称
-  fieldType: string; // 字段类型
-  fieldComment: string; //字段注释
-  databaseName: string; // 数据库名称
-  tableName: string; // 表名
-};
-
-// 表选项
-export type TableOption = {
-  tableName: string; //表名
-  tableComment: string; //表备注
-  fieldOptions: Array<FieldOption>;
-};
-
-// 数据库选项
-export type DatabaseOption = {
-  databaseName: string;
-  tableOptions: Array<TableOption>;
-};
-
-export type SortText = {
-  Database: "0";
-  Table: "1";
-  Column: "2";
-  Keyword: "3";
-};
-
-// 重写建议声明
-export interface SuggestOption
-  extends Pick<
-    monaco.languages.CompletionItem,
-    Exclude<keyof monaco.languages.CompletionItem, "range">
-  > {
-  range?:
-    | monaco.IRange
-    | {
-        insert: monaco.IRange;
-        replace: monaco.IRange;
-      };
+  fieldName: string
+  fieldType: string
+  fieldComment: string
+  databaseName: string
+  tableName: string
 }
 
-/**
- * 编译器主题枚举
- */
-export type ThemeType = "vs" | "vs-dark" | "hc-black";
+export type TableOption = {
+  tableName: string
+  tableComment: string
+  fieldOptions: FieldOption[]
+}
+
+export type DatabaseOption = {
+  databaseName: string
+  tableOptions: TableOption[]
+}
 ```
 
-### 未来 TODO
+Completion behavior:
 
-1. 支持库名.表明.字段的智能提示
-2. 自定义关键字的提示
-3. ...
+- Typing after `from` or `join` suggests database names.
+- Typing `databaseName.` suggests tables under that database.
+- Typing after `select`, `where`, `and`, `or`, `on`, `group by`, `order by` and similar SQL clauses suggests fields.
+- Typing `alias.` suggests fields from the aliased table when the table can be inferred.
+- Custom keywords are included in the default keyword suggestions.
 
-### 如果您有更好的建议 可以联系 [我](18763006837@163.com)，让该组件变的更好
+## Monaco Options
 
-### 免责声明
+`monacoEditorOption` accepts Monaco's native `IStandaloneEditorConstructionOptions`.
 
-本包是自己用业余时间封装打包的，如若您使用了该包，出现问题不负责任
+```vue
+<MonacoEditor
+  v-model="sql"
+  :monaco-editor-option="{
+    fontSize: 13,
+    minimap: { enabled: true },
+    wordWrap: 'on',
+  }"
+/>
+```
+
+The component provides default SQL-oriented options and merges your options on top.
+
+## Styles
+
+Import the packaged CSS once in your application:
+
+```ts
+import 'vue3-monaco-editor/style.css'
+```
+
+## Development
+
+```shell
+pnpm install
+pnpm dev
+```
+
+Useful scripts:
+
+| Script            | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `pnpm dev`        | Start the Vite demo.                                     |
+| `pnpm build`      | Build ESM, UMD, minified UMD, CSS and declaration files. |
+| `pnpm check`      | Run Vue and TypeScript checks.                           |
+| `pnpm lint`       | Run ESLint.                                              |
+| `pnpm lint:fix`   | Run ESLint with fixes.                                   |
+| `pnpm format`     | Format files with Prettier.                              |
+| `pnpm docs:dev`   | Start the VitePress docs site.                           |
+| `pnpm docs:build` | Build the VitePress docs site.                           |
+
+## Package Output
+
+```text
+dist/vue3-monaco-editor.es.js
+dist/vue3-monaco-editor.umd.js
+dist/vue3-monaco-editor.umd.min.js
+dist/vue3-monaco-editor.css
+types/vue3-monaco-editor.d.ts
+```
+
+## Notes
+
+- This package does not bundle `vue` or `monaco-editor`; both are external peer dependencies.
+- The package is designed for modern bundlers such as Vite, Rollup and Webpack.
+- Monaco worker configuration may still depend on your host bundler setup.
+
+## License
+
+MIT
