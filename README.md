@@ -1,5 +1,10 @@
 # vue3-monaco-editor
 
+[![npm version](https://img.shields.io/npm/v/vue3-monaco-editor.svg)](https://www.npmjs.com/package/vue3-monaco-editor)
+[![npm downloads](https://img.shields.io/npm/dm/vue3-monaco-editor.svg)](https://www.npmjs.com/package/vue3-monaco-editor)
+[![CI build status](https://github.com/xcy960815/monaco-editor-vue3/actions/workflows/deploy-docs.yml/badge.svg?branch=master)](https://github.com/xcy960815/monaco-editor-vue3/actions/workflows/deploy-docs.yml)
+[![license](https://img.shields.io/npm/l/vue3-monaco-editor.svg)](./LICENSE)
+
 [中文文档](./README.zh-CN.md)
 
 [Online Docs](https://xcy960815.github.io/monaco-editor-vue3/) · [Online Demo](https://xcy960815.github.io/monaco-editor-vue3/guide/demo)
