@@ -4,6 +4,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/vue3-monaco-editor.svg)](https://www.npmjs.com/package/vue3-monaco-editor)
 [![CI build status](https://github.com/xcy960815/monaco-editor-vue3/actions/workflows/deploy-docs.yml/badge.svg?branch=master)](https://github.com/xcy960815/monaco-editor-vue3/actions/workflows/deploy-docs.yml)
 [![license](https://img.shields.io/npm/l/vue3-monaco-editor.svg)](./LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/xcy960815/monaco-editor-vue3.svg)](https://github.com/xcy960815/monaco-editor-vue3/issues)
+[![GitHub stars](https://img.shields.io/github/stars/xcy960815/monaco-editor-vue3.svg?style=social&label=Stars)](https://github.com/xcy960815/monaco-editor-vue3)
+[![GitHub forks](https://img.shields.io/github/forks/xcy960815/monaco-editor-vue3.svg?style=social&label=Fork)](https://github.com/xcy960815/monaco-editor-vue3)
 
 [中文文档](./README.zh-CN.md)
 
