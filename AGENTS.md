@@ -34,7 +34,7 @@ Read these files before making changes:
 1. Read the relevant source, package scripts, docs, and nearby types before editing.
 2. Keep changes small and local to the requested behavior.
 3. Update public docs and declarations-related source when public API changes.
-4. Add or propose focused regression tests for behavior changes. This repo currently has no test runner configured.
+4. Add or propose focused regression tests for behavior changes. Unit tests live in `tests/` and run with `pnpm test` (Vitest).
 5. Run the narrowest useful validation first, then broader checks when risk is higher.
 6. Never hand-edit generated output such as `dist/`, `types/`, or `docs/.vitepress/dist/`; regenerate it with the documented commands.
 
@@ -45,6 +45,7 @@ pnpm install
 pnpm dev
 pnpm build
 pnpm check
+pnpm test
 pnpm lint
 pnpm format:check
 pnpm docs:dev
@@ -52,7 +53,7 @@ pnpm docs:build
 pnpm docs:preview
 ```
 
-There is no `pnpm test` script at the moment. See `.agents/testing.md`.
+`pnpm test` runs the Vitest unit tests in `tests/` (no browser required). See `.agents/testing.md`.
 
 ## Important Constraints
 

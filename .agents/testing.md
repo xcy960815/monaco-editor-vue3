@@ -2,11 +2,18 @@
 
 ## Current State
 
-This repository currently has no configured test runner and no test files were found. `package.json` does not define a `test` script.
+The repository uses [Vitest](https://vitest.dev/) as its test runner. `package.json` defines a `test` script:
+
+```sh
+pnpm test
+```
+
+Tests live in `tests/`. `tests/snippets.spec.ts` covers the SQL completion engine (`src/components/snippets.ts`) using pure stubs, so it runs in Node without a browser or a real Monaco build. The stubs live in `tests/stubs/` and are wired in through aliases in `vitest.config.ts`.
 
 Existing validation commands are:
 
 ```sh
+pnpm test
 pnpm check
 pnpm lint
 pnpm format:check
@@ -19,6 +26,7 @@ pnpm docs:build
 For source changes, run at least:
 
 ```sh
+pnpm test
 pnpm check
 pnpm lint
 ```
@@ -41,43 +49,31 @@ For docs-only changes where a full docs build is unnecessary, run:
 pnpm format:check
 ```
 
+## Covered Behavior
+
+`tests/snippets.spec.ts` keeps the following completion rules as regression tests:
+
+- `from` / `join` contexts suggest databases.
+- `databaseName.` suggests only the tables of that database, with comments.
+- `alias.` suggests fields of the aliased table, including comment and type details.
+- Table-name completion works without an alias (`tableName.`).
+- `select` and similar clauses suggest all known fields.
+- Custom keywords appear in default keyword suggestions.
+- Table aliases do not leak across `;`-separated statements.
+- Quoted (`` ` ``) and case-variant identifiers normalize correctly.
+
 ## Manual Regression Areas
 
-Use `pnpm dev` and the demo in `src/App.vue` to manually verify:
+Use `pnpm dev` and the demo in `src/App.vue` to manually verify what unit tests cannot cover:
 
 - editor mounts without console errors
 - `v-model` updates when editing content
 - `resetEditor()` clears the editor
 - changing height and width relayouts Monaco
 - changing `monacoEditorTheme` updates the theme
-- default keyword suggestions still appear
-- `customKeywords` appear in suggestions
-- `from` and `join` contexts suggest databases
-- `databaseName.` suggests tables
-- `alias.` suggests fields when an alias can be inferred
+- `editor-ready` / `focus` / `blur` / `cursor-change` / `selection-change` events fire
+- `getEditor()` returns the live Monaco instance
 
 ## Adding Tests
 
-Because no runner is installed, do not write test files that cannot be executed by existing scripts unless the task includes adding a test setup.
-
-Recommended first test target:
-
-- unit tests for `SqlSnippets` in `src/components/snippets.ts`, because most completion behavior is plain TypeScript logic around Monaco model inputs and metadata.
-
-Useful regression cases:
-
-- `getDatabaseOptionsSuggestions()` maps database metadata to database suggestions.
-- `getTableOptionsSuggestByDatabaseName()` is case-insensitive and returns only tables for the selected database.
-- `getFieldOptionsSuggestByTableName()` handles qualified names by using the last path segment.
-- `getTableNameAndTableAlia()` extracts aliases from `from`, comma-separated table lists, and `join ... on`.
-- `provideCompletionItems()` returns database, table, field, and keyword suggestions in the expected SQL contexts.
-
-If adding a runner, update `package.json` scripts and this file in the same change. Keep the test command explicit, for example `pnpm test`, and document any browser or DOM requirements for Monaco-dependent tests.
-
-## AI Agent Testing Workflow
-
-1. Read the behavior and nearby docs before changing code.
-2. Prefer focused tests around changed logic.
-3. If no runnable test setup exists, document the gap in the final response and run the closest available validation.
-4. For public behavior changes, manually exercise the Vite demo or add a test setup as part of the task.
-5. Always run `pnpm check` and `pnpm lint` for TypeScript/Vue changes unless blocked by environment issues.
+Put new specs in `tests/*.spec.ts` so `vitest.config.ts` picks them up. Keep Monaco-dependent logic behind stubs in `tests/stubs/` when the logic under test is plain TypeScript. Component-level (DOM) tests are not set up yet; if they become necessary, add `@vue/test-utils` together with a `jsdom` or `happy-dom` environment in the same change.
