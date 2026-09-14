@@ -7,7 +7,8 @@ export default defineConfig({
   description: 'A lightweight Monaco Editor component library for Vue 3.',
   base: '/monaco-editor-vue3/',
   cleanUrls: true,
-  head: [['meta', { name: 'theme-color', content: '#2563eb' }]],
+  lastUpdated: true,
+  head: [['meta', { name: 'theme-color', content: '#070b12' }]],
   locales: {
     root: {
       label: 'English',

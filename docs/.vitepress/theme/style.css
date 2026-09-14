@@ -1,21 +1,260 @@
+/* -------------------------------------------------------------------------
+   vue3-monaco-editor docs theme
+   与本地 Playground 同一套设计语言：暗色 Monaco 蓝/青，亮色深蓝/深青。
+------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------- palette */
+
 :root {
-  --vp-c-brand-1: #2563eb;
-  --vp-c-brand-2: #1d4ed8;
-  --vp-c-brand-3: #1e40af;
-  --vp-home-hero-name-color: #1f2937;
+  /* light mode · brand */
+  --vp-c-brand-1: #2b78c1;
+  --vp-c-brand-2: #2365a6;
+  --vp-c-brand-3: #1d5288;
+  --vp-c-brand-soft: rgb(43 120 194 / 12%);
+
+  /* light mode · surfaces */
+  --vp-c-bg: #f2f5f9;
+  --vp-c-bg-alt: #ecf1f7;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #f5f8fb;
+  --vp-c-divider: #d8e0ea;
+  --vp-c-border: #d8e0ea;
+  --vp-c-gutter: #e3e9f1;
+  --vp-c-text-1: #17222f;
+  --vp-c-text-2: #46566a;
+  --vp-c-text-3: #94a1b0;
+
+  /* light mode · chrome */
+  --vp-nav-bg-color: rgb(242 245 249 / 82%);
+  --vp-sidebar-bg-color: #f2f5f9;
+
+  /* light mode · code */
+  --vp-code-block-bg: #f6f8fc;
+  --vp-code-color: #2b78c1;
+  --vp-code-bg: rgb(43 120 194 / 10%);
+
+  /* hero */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    92deg,
+    #2b78c1 10%,
+    #0e7490 90%
+  );
+
+  font-family:
+    Inter,
+    'PingFang SC',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Microsoft YaHei',
+    sans-serif;
 }
 
-.VPFeature {
-  border-radius: 8px;
+.dark {
+  /* dark mode · brand */
+  --vp-c-brand-1: #5fa9f2;
+  --vp-c-brand-2: #3f8fe8;
+  --vp-c-brand-3: #3480d6;
+  --vp-c-brand-soft: rgb(95 169 242 / 13%);
+
+  /* dark mode · surfaces */
+  --vp-c-bg: #070b12;
+  --vp-c-bg-alt: #0a0f18;
+  --vp-c-bg-elv: #0c1220;
+  --vp-c-bg-soft: #101827;
+  --vp-c-divider: #1d2939;
+  --vp-c-border: #1d2939;
+  --vp-c-gutter: #16202e;
+  --vp-c-text-1: #e8eef6;
+  --vp-c-text-2: #a5b1c2;
+  --vp-c-text-3: #5d6b7d;
+
+  /* dark mode · chrome */
+  --vp-nav-bg-color: rgb(7 11 18 / 78%);
+  --vp-sidebar-bg-color: #0a0f18;
+
+  /* dark mode · code */
+  --vp-code-block-bg: #0a0f17;
+  --vp-code-color: #5fa9f2;
+  --vp-code-bg: rgb(95 169 242 / 11%);
+
+  /* hero */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    92deg,
+    #5fa9f2 10%,
+    #6ee7f9 90%
+  );
 }
+
+.dark ::selection {
+  background: rgb(95 169 242 / 22%);
+}
+
+::selection {
+  background: rgb(43 120 194 / 16%);
+}
+
+/* ---------------------------------------------------------------- buttons */
+
+.VPButton.brand {
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-text: #ffffff;
+  border: none;
+  background-image: linear-gradient(135deg, #2b78c1, #0e7490);
+  box-shadow: 0 6px 18px rgb(43 120 194 / 24%);
+  transition:
+    filter 160ms ease,
+    transform 160ms ease;
+}
+
+.VPButton.brand:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.dark .VPButton.brand {
+  --vp-button-brand-text: #06121f;
+  --vp-button-brand-hover-text: #06121f;
+  --vp-button-brand-active-text: #06121f;
+  background-image: linear-gradient(135deg, #5fa9f2, #6ee7f9);
+  box-shadow: 0 6px 20px rgb(95 169 242 / 18%);
+}
+
+.VPButton.alt {
+  border-color: var(--vp-c-border);
+  background-color: var(--vp-c-bg-elv);
+}
+
+.VPButton.alt:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
+
+/* --------------------------------------------------------------- features */
+
+.VPFeature {
+  border-radius: 14px;
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-soft);
+  box-shadow: 0 10px 30px rgb(2 6 12 / 14%);
+}
+
+.dark .VPFeature:hover {
+  border-color: rgb(95 169 242 / 30%);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 35%);
+}
+
+.VPFeature .title {
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------- home hero */
+
+.VPHomeHero .name {
+  font-family:
+    'SFMono-Regular', ui-monospace, Menlo, Consolas, 'Liberation Mono',
+    monospace;
+  letter-spacing: -0.035em;
+  background: linear-gradient(92deg, var(--vp-c-brand-1) 10%, #0e7490 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .VPHomeHero .name {
+  background: linear-gradient(92deg, #5fa9f2 10%, #6ee7f9 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.VPHome {
+  position: relative;
+}
+
+.VPHome::before,
+.VPHome::after {
+  position: absolute;
+  z-index: 0;
+  content: '';
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.VPHome::before {
+  top: -10rem;
+  left: 8%;
+  width: 40rem;
+  height: 28rem;
+  background: radial-gradient(closest-side, rgb(76 158 235 / 12%), transparent);
+}
+
+.VPHome::after {
+  top: -6rem;
+  right: 4%;
+  width: 34rem;
+  height: 24rem;
+  background: radial-gradient(closest-side, rgb(99 102 241 / 12%), transparent);
+}
+
+.dark .VPHome::before {
+  background: radial-gradient(closest-side, rgb(76 158 235 / 16%), transparent);
+}
+
+.dark .VPHome::after {
+  background: radial-gradient(
+    closest-side,
+    rgb(110 231 249 / 12%),
+    transparent
+  );
+}
+
+.VPHome > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------- doc body */
+
+.vp-doc h1 {
+  letter-spacing: -0.02em;
+}
+
+.vp-doc div[class*='language-'] {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+}
+
+.vp-doc div[class*='language-'] code {
+  font-variant-ligatures: none;
+}
+
+/* ------------------------------------------------------------ demo blocks */
 
 .demo-doc-block {
   margin-top: 24px;
   overflow: hidden;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
+  border-radius: 16px;
+  background: var(--vp-c-bg-elv);
+  box-shadow: 0 20px 60px rgb(15 23 42 / 8%);
+  transition: border-color 200ms ease;
 }
 
-.demo-doc-block .demo-page {
-  min-height: 520px;
+.dark .demo-doc-block {
+  box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
+}
+
+.demo-doc-block:hover {
+  border-color: var(--vp-c-brand-soft);
 }

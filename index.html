@@ -6,15 +6,40 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover"
     />
-    <title>vue3-monaco-editor demo</title>
+    <meta name="theme-color" content="#070b12" />
+    <title>vue3-monaco-editor · Playground</title>
     <style>
-      html,
-      body {
-        margin: 0;
-        width: 100%;
-        min-height: 100%;
+      html {
+        background: #070b12;
+      }
+      html[data-theme='light'] {
+        background: #f2f5f9;
       }
     </style>
+    <script>
+      ;(function () {
+        var saved = null
+        try {
+          saved = localStorage.getItem('vme-demo-theme')
+        } catch (e) {}
+        var prefersLight =
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: light)').matches
+        var theme =
+          saved === 'light' || saved === 'dark'
+            ? saved
+            : prefersLight
+              ? 'light'
+              : 'dark'
+        document.documentElement.dataset.theme = theme
+        document.documentElement.classList.add('demo-standalone')
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) {
+          meta.setAttribute('content', theme === 'dark' ? '#070b12' : '#f2f5f9')
+        }
+      })()
+    </script>
   </head>
   <body>
     <noscript>
