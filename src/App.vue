@@ -251,6 +251,22 @@ watch(isDark, (dark: boolean) => {
   monacoEditorTheme.value = dark ? 'vs-dark' : 'vs'
 })
 
+const DEMO_MIN_HEIGHT = 160
+const DEMO_MIN_WIDTH = 0
+
+// v-model.number 允许键入越界值(如 9 或负数),立即钳回合法区间
+watch(monacoEditorHeight, (height: number) => {
+  if (!Number.isFinite(height) || height < DEMO_MIN_HEIGHT) {
+    monacoEditorHeight.value = DEMO_MIN_HEIGHT
+  }
+})
+
+watch(monacoEditorWidth, (width: number) => {
+  if (!Number.isFinite(width) || width < DEMO_MIN_WIDTH) {
+    monacoEditorWidth.value = DEMO_MIN_WIDTH
+  }
+})
+
 const selectScenario = (scenario: Scenario): void => {
   activeScenario.value = scenario.id
   defaultSql.value = scenario.code
