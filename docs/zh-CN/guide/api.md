@@ -15,17 +15,23 @@
 
 ## 事件
 
-| 名称                | 说明                   |
-| ------------------- | ---------------------- |
-| `update:modelValue` | 编辑器内容变化时触发。 |
+| 名称                | 参数                                         | 说明                        |
+| ------------------- | -------------------------------------------- | --------------------------- |
+| `update:modelValue` | `string`                                     | 编辑器内容变化时触发。      |
+| `editor-ready`      | `monaco.editor.IStandaloneCodeEditor`        | Monaco 实例创建完成时触发。 |
+| `focus`             | —                                            | 编辑器获得焦点时触发。      |
+| `blur`              | —                                            | 编辑器失去焦点时触发。      |
+| `cursor-change`     | `monaco.editor.ICursorPositionChangedEvent`  | 光标位置变化时触发。        |
+| `selection-change`  | `monaco.editor.ICursorSelectionChangedEvent` | 选区变化时触发。            |
 
 ## 暴露方法
 
-| 名称                  | 说明                 |
-| --------------------- | -------------------- |
-| `initEditor`          | 初始化编辑器实例。   |
-| `resetEditor`         | 清空编辑器内容。     |
-| `insertText`          | 在光标位置插入文本。 |
-| `getSelectedText`     | 获取当前选中文本。   |
-| `replaceSelectedText` | 替换当前选中文本。   |
-| `replaceText`         | 替换编辑器全部内容。 |
+| 名称                  | 说明                                                         |
+| --------------------- | ------------------------------------------------------------ |
+| `initEditor`          | 初始化编辑器实例。                                           |
+| `resetEditor`         | 清空编辑器内容。                                             |
+| `insertText`          | 在光标位置插入文本。                                         |
+| `getSelectedText`     | 获取当前选中文本。                                           |
+| `replaceSelectedText` | 替换当前选中文本。                                           |
+| `replaceText`         | 替换编辑器全部内容。                                         |
+| `getEditor`           | 获取原生 `IStandaloneCodeEditor` 实例，未初始化时为 `null`。 |

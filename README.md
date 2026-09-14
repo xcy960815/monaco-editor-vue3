@@ -119,22 +119,28 @@ const databaseOptions: DatabaseOption[] = [
 
 ### Events
 
-| Name                | Payload  | Description                              |
-| ------------------- | -------- | ---------------------------------------- |
-| `update:modelValue` | `string` | Emitted when the editor content changes. |
+| Name                | Payload                                      | Description                                  |
+| ------------------- | -------------------------------------------- | -------------------------------------------- |
+| `update:modelValue` | `string`                                     | Emitted when the editor content changes.     |
+| `editor-ready`      | `monaco.editor.IStandaloneCodeEditor`        | Emitted once the Monaco instance is created. |
+| `focus`             | —                                            | Editor gains focus.                          |
+| `blur`              | —                                            | Editor loses focus.                          |
+| `cursor-change`     | `monaco.editor.ICursorPositionChangedEvent`  | Cursor position changes.                     |
+| `selection-change`  | `monaco.editor.ICursorSelectionChangedEvent` | Selection changes.                           |
 
 ### Exposed Methods
 
 Use a component ref to call these methods:
 
-| Name                  | Type                        | Description                                                                 |
-| --------------------- | --------------------------- | --------------------------------------------------------------------------- |
-| `initEditor`          | `() => void`                | Initializes the Monaco instance. It is called automatically on mount.       |
-| `resetEditor`         | `() => void`                | Clears the editor content.                                                  |
-| `insertText`          | `(text: string) => void`    | Inserts text at the current cursor position.                                |
-| `getSelectedText`     | `() => string`              | Returns the current selection, or an empty string when nothing is selected. |
-| `replaceSelectedText` | `(text: string) => boolean` | Replaces the current selection and returns whether replacement happened.    |
-| `replaceText`         | `(text: string) => void`    | Replaces the full editor content.                                           |
+| Name                  | Type                                                | Description                                                                 |
+| --------------------- | --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `initEditor`          | `() => void`                                        | Initializes the Monaco instance. It is called automatically on mount.       |
+| `resetEditor`         | `() => void`                                        | Clears the editor content.                                                  |
+| `insertText`          | `(text: string) => void`                            | Inserts text at the current cursor position.                                |
+| `getSelectedText`     | `() => string`                                      | Returns the current selection, or an empty string when nothing is selected. |
+| `replaceSelectedText` | `(text: string) => boolean`                         | Replaces the current selection and returns whether replacement happened.    |
+| `replaceText`         | `(text: string) => void`                            | Replaces the full editor content.                                           |
+| `getEditor`           | `() => monaco.editor.IStandaloneCodeEditor \| null` | Returns the raw Monaco instance, or `null` before initialization.           |
 
 ```vue
 <script setup lang="ts">
@@ -147,7 +153,18 @@ const editorRef = ref<MonacoEditorExpose | null>(null)
 const reset = () => {
   editorRef.value?.resetEditor()
 }
+
+// Full native Monaco capabilities through the instance
+const handleReady = (editor: monaco.editor.IStandaloneCodeEditor) => {
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+    editorRef.value?.getSelectedText()
+  })
+}
 </script>
+
+<template>
+  <MonacoEditor ref="editorRef" @editor-ready="handleReady" />
+</template>
 ```
 
 ## Completion Data
@@ -220,6 +237,7 @@ Useful scripts:
 | `pnpm dev`        | Start the Vite demo.                                     |
 | `pnpm build`      | Build ESM, UMD, minified UMD, CSS and declaration files. |
 | `pnpm check`      | Run Vue and TypeScript checks.                           |
+| `pnpm test`       | Run unit tests with Vitest.                              |
 | `pnpm lint`       | Run ESLint.                                              |
 | `pnpm lint:fix`   | Run ESLint with fixes.                                   |
 | `pnpm format`     | Format files with Prettier.                              |

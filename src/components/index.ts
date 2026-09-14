@@ -32,6 +32,7 @@ export type MonacoEditorExpose = {
   getSelectedText: () => string
   replaceSelectedText: (text: string) => boolean
   replaceText: (text: string) => void
+  getEditor: () => monaco.editor.IStandaloneCodeEditor | null
 }
 
 export type MonacoEditorComponent = DefineComponent<

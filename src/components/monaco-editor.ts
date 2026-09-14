@@ -56,7 +56,14 @@ export const MonacoEditor = defineComponent({
       default: 'vs',
     },
   },
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'editor-ready',
+    'focus',
+    'blur',
+    'cursor-change',
+    'selection-change',
+  ],
   setup(props, { emit, expose }) {
     const monacoEditorDom = ref<HTMLDivElement | null>(null)
     const monacoEditor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(
@@ -65,6 +72,7 @@ export const MonacoEditor = defineComponent({
     const completionItemProvider = shallowRef<monaco.IDisposable | null>(null)
     const sqlSnippets = shallowRef<SqlSnippets | null>(null)
     const resizeObserver = shallowRef<ResizeObserver | null>(null)
+    let editorEventDisposables: Array<monaco.IDisposable> = []
 
     const createDefaultEditorOption =
       (): monaco.editor.IStandaloneEditorConstructionOptions => ({
@@ -191,16 +199,30 @@ export const MonacoEditor = defineComponent({
         }),
       )
 
-      monacoEditor.value = markRaw(
+      const editor = markRaw(
         monaco.editor.create(monacoEditorDom.value, getEditorOption()),
       )
+      monacoEditor.value = editor
       setMonacoEditorStyle()
 
-      monacoEditor.value.onDidChangeModelContent(() => {
+      editor.onDidChangeModelContent(() => {
         if (!monacoEditor.value) return
 
         emit('update:modelValue', toRaw(monacoEditor.value).getValue())
       })
+
+      editorEventDisposables = [
+        editor.onDidFocusEditorText(() => emit('focus')),
+        editor.onDidBlurEditorText(() => emit('blur')),
+        editor.onDidChangeCursorPosition((event) =>
+          emit('cursor-change', event),
+        ),
+        editor.onDidChangeCursorSelection((event) =>
+          emit('selection-change', event),
+        ),
+      ]
+
+      emit('editor-ready', editor)
     }
 
     const resetEditor = (): void => {
@@ -281,6 +303,9 @@ export const MonacoEditor = defineComponent({
       editor.focus()
     }
 
+    const getEditor = (): monaco.editor.IStandaloneCodeEditor | null =>
+      monacoEditor.value ? toRaw(monacoEditor.value) : null
+
     watch(
       () => props.modelValue,
       (newSql: string) => {
@@ -331,6 +356,8 @@ export const MonacoEditor = defineComponent({
     })
 
     onBeforeUnmount(() => {
+      editorEventDisposables.forEach((disposable) => disposable.dispose())
+      editorEventDisposables = []
       completionItemProvider.value?.dispose()
       resizeObserver.value?.disconnect()
       toRaw(monacoEditor.value)?.dispose()
@@ -347,6 +374,7 @@ export const MonacoEditor = defineComponent({
       getSelectedText,
       replaceSelectedText,
       replaceText,
+      getEditor,
     })
 
     return () =>

@@ -116,22 +116,28 @@ const databaseOptions: DatabaseOption[] = [
 
 ### 事件
 
-| 名称                | 参数     | 说明                   |
-| ------------------- | -------- | ---------------------- |
-| `update:modelValue` | `string` | 编辑器内容变化时触发。 |
+| 名称                | 参数                                         | 说明                        |
+| ------------------- | -------------------------------------------- | --------------------------- |
+| `update:modelValue` | `string`                                     | 编辑器内容变化时触发。      |
+| `editor-ready`      | `monaco.editor.IStandaloneCodeEditor`        | Monaco 实例创建完成时触发。 |
+| `focus`             | —                                            | 编辑器获得焦点时触发。      |
+| `blur`              | —                                            | 编辑器失去焦点时触发。      |
+| `cursor-change`     | `monaco.editor.ICursorPositionChangedEvent`  | 光标位置变化时触发。        |
+| `selection-change`  | `monaco.editor.ICursorSelectionChangedEvent` | 选区变化时触发。            |
 
 ### 暴露方法
 
 可以通过组件 ref 调用：
 
-| 名称                  | 类型                        | 说明                                       |
-| --------------------- | --------------------------- | ------------------------------------------ |
-| `initEditor`          | `() => void`                | 初始化 Monaco 实例。组件挂载时会自动调用。 |
-| `resetEditor`         | `() => void`                | 清空编辑器内容。                           |
-| `insertText`          | `(text: string) => void`    | 在当前光标位置插入文本。                   |
-| `getSelectedText`     | `() => string`              | 获取当前选中文本；未选中时返回空字符串。   |
-| `replaceSelectedText` | `(text: string) => boolean` | 替换当前选中文本，并返回是否替换成功。     |
-| `replaceText`         | `(text: string) => void`    | 替换编辑器全部内容。                       |
+| 名称                  | 类型                                                | 说明                                          |
+| --------------------- | --------------------------------------------------- | --------------------------------------------- |
+| `initEditor`          | `() => void`                                        | 初始化 Monaco 实例。组件挂载时会自动调用。    |
+| `resetEditor`         | `() => void`                                        | 清空编辑器内容。                              |
+| `insertText`          | `(text: string) => void`                            | 在当前光标位置插入文本。                      |
+| `getSelectedText`     | `() => string`                                      | 获取当前选中文本；未选中时返回空字符串。      |
+| `replaceSelectedText` | `(text: string) => boolean`                         | 替换当前选中文本，并返回是否替换成功。        |
+| `replaceText`         | `(text: string) => void`                            | 替换编辑器全部内容。                          |
+| `getEditor`           | `() => monaco.editor.IStandaloneCodeEditor \| null` | 获取原生 Monaco 实例；未初始化时返回 `null`。 |
 
 ```vue
 <script setup lang="ts">
@@ -217,6 +223,7 @@ pnpm dev
 | `pnpm dev`        | 启动 Vite 示例。                          |
 | `pnpm build`      | 构建 ESM、UMD、压缩 UMD、CSS 和类型声明。 |
 | `pnpm check`      | 运行 Vue 和 TypeScript 检查。             |
+| `pnpm test`       | 运行 Vitest 单元测试。                    |
 | `pnpm lint`       | 运行 ESLint。                             |
 | `pnpm lint:fix`   | 运行 ESLint 自动修复。                    |
 | `pnpm format`     | 使用 Prettier 格式化文件。                |

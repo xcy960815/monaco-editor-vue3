@@ -51,6 +51,7 @@ type MonacoEditorExpose = {
     getSelectedText: () => string;
     replaceSelectedText: (text: string) => boolean;
     replaceText: (text: string) => void;
+    getEditor: () => monaco.editor.IStandaloneCodeEditor | null;
 };
 type MonacoEditorComponent = DefineComponent<MonacoEditorProps, MonacoEditorExpose>;
 declare const MonacoEditor: MonacoEditorComponent;
